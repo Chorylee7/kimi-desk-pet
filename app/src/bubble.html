@@ -6,11 +6,6 @@
 </head>
 <body>
   <div id="bubble"></div>
-  <script>
-    const { ipcRenderer } = require('electron');
-    ipcRenderer.on('bubble-text', (_e, text) => {
-      document.getElementById('bubble').textContent = text;
-    });
-  </script>
+  <script src="bubble.js"></script>
 </body>
 </html>

@@ -116,7 +116,12 @@ function ensureBubble() {
     skipTaskbar: true,
     alwaysOnTop: true,
     focusable: false,
-    webPreferences: { contextIsolation: false, nodeIntegration: true },
+    webPreferences: {
+      preload: path.join(__dirname, 'bubble-preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
   });
   bubbleWin.setAlwaysOnTop(true, 'screen-saver');
   if (process.platform === 'darwin') bubbleWin.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
@@ -135,8 +140,15 @@ function showBubble(text) {
   const win = ensureBubble();
   win.setContentSize(w, h);
   const [px, py] = petWin.getPosition();
-  const [pw] = petWin.getSize();
-  win.setPosition(Math.round(px + pw / 2 - w / 2), Math.round(py - h - 8), false);
+  const [pw, ph] = petWin.getSize();
+  // 默认贴在宠物上方；顶上放不下就翻到下方，再整体钳制到当前屏幕的工作区内
+  const wa = screen.getDisplayNearestPoint({ x: px, y: py }).workArea;
+  let bx = Math.round(px + pw / 2 - w / 2);
+  let by = py - h - 8;
+  if (by < wa.y) by = py + ph + 8;
+  bx = Math.min(Math.max(bx, wa.x), wa.x + wa.width - w);
+  by = Math.min(Math.max(by, wa.y), wa.y + wa.height - h);
+  win.setPosition(bx, by, false);
   win.webContents.send('bubble-text', txt);
   win.showInactive();
   clearTimeout(bubbleTimer);
