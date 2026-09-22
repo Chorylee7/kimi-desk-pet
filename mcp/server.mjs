@@ -65,6 +65,14 @@ async function ensureDeps() {
   }
 }
 
+// 首次安装要下载 Electron，耗时远超 MCP 握手超时（默认 30s）。
+// 所以只跑一次并缓存 promise：启动时后台预热，真要拉起宠物时再 await。
+let depsPromise = null;
+function ensureDepsOnce() {
+  if (!depsPromise) depsPromise = ensureDeps().catch((e) => { depsPromise = null; throw e; });
+  return depsPromise;
+}
+
 function electronBinary() {
   const nm = path.join(APP_DIR, 'node_modules', 'electron', 'dist');
   const candidates = {
@@ -107,7 +115,7 @@ function ensurePet() {
 
 async function doEnsurePet() {
   if (typeof fetch !== 'function') throw new Error('需要 Node.js >= 18（支持全局 fetch）');
-  await ensureDeps();
+  await ensureDepsOnce();
 
   const existing = readState();
   if (existing && existing.port && existing.token && await ping(existing)) return existing;
@@ -137,7 +145,8 @@ async function doEnsurePet() {
 const text = (obj) => ({ content: [{ type: 'text', text: typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2) }] });
 
 async function main() {
-  await ensureDeps();
+  // 后台预热依赖：在这里 await 会让握手超过客户端启动超时（首次要下载 Electron）
+  ensureDepsOnce().catch((e) => log('deps preinstall failed:', (e && e.message) || e));
   const { McpServer } = await import('@modelcontextprotocol/sdk/server/mcp.js');
   const { StdioServerTransport } = await import('@modelcontextprotocol/sdk/server/stdio.js');
   const { z } = await import('zod');
