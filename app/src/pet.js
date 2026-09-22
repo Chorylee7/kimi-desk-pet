@@ -422,7 +422,11 @@ function bindDrop() {
     e.preventDefault();
     if (phase !== 'live') return;
     const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f && f.path) api.importFile(f.path);
+    if (!f) return;
+    // Electron 32 起 File.path 已被移除，路径只能经 preload 的 webUtils 取
+    let src = '';
+    try { src = api.getFilePath(f); } catch (err) { /* 取不到路径就忽略这次拖入 */ }
+    if (src) api.importFile(src);
   });
 }
 

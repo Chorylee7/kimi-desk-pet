@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('petAPI', {
   getSettings: () => ipcRenderer.invoke('getSettings'),
@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('petAPI', {
   hideBubble: () => ipcRenderer.invoke('hideBubble'),
   importImage: () => ipcRenderer.invoke('importImage'),
   importFile: (srcPath) => ipcRenderer.invoke('importFile', srcPath),
+  getFilePath: (file) => webUtils.getPathForFile(file),
   switchPet: (id) => ipcRenderer.invoke('switchPet', id),
   openSettings: () => ipcRenderer.invoke('openSettings'),
   petClicked: () => ipcRenderer.invoke('pet-clicked'),
