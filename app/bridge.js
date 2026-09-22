@@ -68,7 +68,8 @@ function startBridge(onCommand) {
       const port = server.address().port;
       const state = { port, token, pid: process.pid, startedAt: new Date().toISOString() };
       const tmp = stateFile() + '.tmp';
-      fs.writeFileSync(tmp, JSON.stringify(state, null, 2));
+      fs.writeFileSync(tmp, JSON.stringify(state, null, 2), { mode: 0o600 });
+      fs.chmodSync(tmp, 0o600); // 已存在的 tmp 不会被 mode 改写
       fs.renameSync(tmp, stateFile());
       resolve({ port, token, close: () => server.close() });
     });
