@@ -51,7 +51,7 @@
 
 agent 侧有 11 个 MCP 工具可用：`pet_status` `pet_show` `pet_hide` `pet_say` `pet_mood` `pet_animate` `pet_move` `pet_set` `pet_task` `pet_focus` `pet_quit`，详见 `skills/desk-pet/SKILL.md`。
 
-**手动入口**：右键（macOS 点按菜单栏）托盘图标可切换形象、开关随机走动、打开设置、退出；单击宠物会把 Kimi Code 窗口带到前台。
+**手动入口**：右键（macOS 点按菜单栏）托盘图标可切换形象、显示/隐藏宠物、开关随机走动、打开设置、退出；单击宠物会把 Kimi Code 窗口带到前台。
 
 ## 自定义形象
 

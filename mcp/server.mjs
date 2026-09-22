@@ -172,7 +172,7 @@ async function main() {
     version: '0.4.1',
   });
 
-  server.tool('pet_status', '查看桌面宠物状态（存活、形象、尺寸、位置、是否随机走动）', {}, async () => {
+  server.tool('pet_status', '查看桌面宠物状态（存活、形象、尺寸、位置、是否随机走动、当前任务状态徽标 task）', {}, async () => {
     return text(await bridgeCall('status'));
   });
 
