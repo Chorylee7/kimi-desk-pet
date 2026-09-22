@@ -1,6 +1,6 @@
 {
   "name": "desk-pet-mcp",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Desk Pet MCP server（Kimi Code 桌面宠物控制端）",
   "type": "module",
   "private": true,

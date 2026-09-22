@@ -1,6 +1,6 @@
 {
   "name": "desk-pet",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "桌面宠物：在桌面上养一只会互动的 AI 桌宠。它是 Kimi Code 任务状态的外显——思考中浅蓝、工作中蓝光呼吸、本轮结束亮琥珀色「待复核」、出错亮红并安慰你；点击宠物即可聚焦回 Kimi Code 窗口",
   "author": "Chorylee7",
   "homepage": "https://github.com/Chorylee7/kimi-desk-pet",
