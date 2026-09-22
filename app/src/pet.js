@@ -434,14 +434,15 @@ function bindDrop() {
 // 默认：聚焦 Kimi Code 窗口 + 轻微反馈；设置里可切回“互动”或“两者”
 function onPetClick() {
   const action = settings.clickAction || 'focus';
-  if (action === 'play') { react(); return; }
-  const pet = stage.querySelector('.pet');
-  if (pet && phase === 'live') playAnim(pet, 'happy', 700);
-  spawnParticles(['✨', '💖']);
+  // 不管哪种点击行为都通知主进程：点击即“看过结果”，由它清掉「待复核」徽标
   api.petClicked().then((r) => {
     if (r && r.skipped) return;
     if (r && r.focused === false) api.showBubble('没找到 Kimi Code 窗口 🤔');
   }).catch(() => { /* ignore */ });
+  if (action === 'play') { react(); return; }
+  const pet = stage.querySelector('.pet');
+  if (pet && phase === 'live') playAnim(pet, 'happy', 700);
+  spawnParticles(['✨', '💖']);
   if (action === 'both') react();
 }
 

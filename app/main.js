@@ -311,13 +311,13 @@ function registerIpc() {
   ipcMain.handle('switchPet', (_e, id) => switchPet(id));
   ipcMain.handle('toggleWander', (_e, on) => { settings.wander = !!on; save(); sendSettingsChanged(); });
   ipcMain.handle('pet-clicked', async () => {
-    const action = settings.clickAction || 'focus';
-    if (action === 'play') return { skipped: true };
-    // Codex 式“待复核”：点击查看结果后清除徽标
+    // Codex 式“待复核”：点击即“看过结果”，先清徽标，与点击行为无关
     if (currentStatus === 'review') {
       currentStatus = null;
       sendAgentEvent({ type: 'status', state: 'idle' });
     }
+    const action = settings.clickAction || 'focus';
+    if (action === 'play') return { skipped: true };
     return focusKimiCode();
   });
   ipcMain.handle('quit', () => app.quit());
