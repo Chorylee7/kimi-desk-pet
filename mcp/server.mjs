@@ -92,8 +92,7 @@ async function ping(state) {
   } catch { return false; }
 }
 
-async function bridgeCall(action, payload = {}) {
-  const state = await ensurePet();
+async function postToBridge(state, action, payload) {
   const res = await fetch(`http://127.0.0.1:${state.port}/${action}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${state.token}`, 'Content-Type': 'application/json' },
@@ -101,8 +100,25 @@ async function bridgeCall(action, payload = {}) {
     signal: AbortSignal.timeout(6000),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.ok === false) throw new Error(data.error || `bridge 返回 ${res.status}`);
+  if (!res.ok || data.ok === false) {
+    // 桥正常应答但命令失败：属于业务错误，不能重试（避免副作用命令下发两次）
+    const err = new Error(data.error || `bridge 返回 ${res.status}`);
+    err.bridgeResponded = true;
+    throw err;
+  }
   return data.result || {};
+}
+
+async function bridgeCall(action, payload = {}) {
+  try {
+    return await postToBridge(await ensurePet(), action, payload);
+  } catch (e) {
+    if (e && e.bridgeResponded) throw e;
+    // 连接层失败：宠物可能在会话中途被托盘退出或崩了，而 ensurePromise 还缓存着旧 port/token。
+    // 丢掉缓存重新发现/拉起一次再试，否则本会话后续所有工具调用都会一直失败。
+    ensurePromise = null;
+    return await postToBridge(await ensurePet(), action, payload);
+  }
 }
 
 // ---------- 宠物进程管理 ----------
