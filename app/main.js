@@ -13,6 +13,7 @@ let bubbleWin = null;
 let settingsWin = null;
 let tray = null;
 let settings = loadSettings();
+let isQuitting = false; // 退出流程中放行窗口关闭（见 createPetWindow / before-quit）
 
 const PETS_DIR = path.join(__dirname, 'pets');
 const CUSTOM_DIR = path.join(app.getPath('userData'), 'custom');
@@ -92,8 +93,12 @@ function createPetWindow() {
     save();
   }, 400));
 
-  // 关闭时隐藏而非退出
-  petWin.on('close', (e) => { e.preventDefault(); petWin.hide(); });
+  // 关闭时隐藏而非退出；退出流程中要放行，否则 app.quit() 会被取消
+  petWin.on('close', (e) => {
+    if (isQuitting) return;
+    e.preventDefault();
+    petWin.hide();
+  });
 
   petWin.webContents.on('context-menu', () => popupTrayMenu());
 }
@@ -437,5 +442,5 @@ if (!gotLock) {
   });
 
   app.on('window-all-closed', () => { /* 常驻托盘，不退出 */ });
-  app.on('before-quit', () => { clearState(); save(); });
+  app.on('before-quit', () => { isQuitting = true; clearState(); save(); });
 }
