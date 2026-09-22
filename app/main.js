@@ -207,6 +207,16 @@ function switchPet(id) {
 }
 
 // ---------- 托盘 ----------
+// 宠物可见性：agent 可以 pet_hide，用户得能从托盘把它找回来
+function petVisible() {
+  return !!(petWin && !petWin.isDestroyed() && petWin.isVisible());
+}
+
+function setPetVisible(on) {
+  if (!petWin || petWin.isDestroyed()) return;
+  if (on) petWin.showInactive(); else petWin.hide();
+}
+
 function createTray() {
   const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
   if (process.platform === 'darwin') icon.setTemplateImage(true);
@@ -242,6 +252,7 @@ function popupTrayMenu() {
   const menu = Menu.buildFromTemplate([
     { label: '选择形象', submenu: petSub },
     { type: 'separator' },
+    { label: '显示宠物', type: 'checkbox', checked: petVisible(), click: (mi) => setPetVisible(mi.checked) },
     { label: '随机走动', type: 'checkbox', checked: !!settings.wander, click: (mi) => { settings.wander = mi.checked; save(); sendSettingsChanged(); } },
     { label: '重新拼豆', visible: settings.pet === 'bead', click: () => { settings.beadProgress = 0; save(); sendSettingsChanged(); } },
     { label: '设置…', click: () => openSettings() },
@@ -356,7 +367,7 @@ async function handleBridgeCommand(action, payload) {
         pet: settings.pet,
         size: settings.size || DEFAULTS.size,
         wander: !!settings.wander,
-        visible: !!(petWin && !petWin.isDestroyed() && petWin.isVisible()),
+        visible: petVisible(),
         position: (petWin && !petWin.isDestroyed()) ? petWin.getPosition() : null,
         task: currentStatus,
       };
