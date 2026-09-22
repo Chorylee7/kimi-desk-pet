@@ -190,9 +190,15 @@ async function main() {
   server.tool('pet_move', '让桌面宠物平滑走到屏幕坐标；不传坐标则走到主屏幕中央', {
     x: z.number().optional().describe('目标屏幕 x 坐标'),
     y: z.number().optional().describe('目标屏幕 y 坐标'),
-    center: z.boolean().optional().describe('true 时走到主屏幕中央（默认行为）'),
+    center: z.boolean().optional().describe('true 时走到主屏幕中央'),
   }, async ({ x, y, center }) => {
-    return text(await bridgeCall('walk', (x === undefined || y === undefined) ? { center: true } : { x, y }));
+    if (center === true || (x === undefined && y === undefined)) {
+      return text(await bridgeCall('walk', { center: true }));
+    }
+    if (x === undefined || y === undefined) {
+      throw new Error('pet_move 需要同时提供 x 和 y；只想走去屏幕中央就别传坐标');
+    }
+    return text(await bridgeCall('walk', { x, y }));
   });
 
   server.tool('pet_set', '设置桌面宠物：切换形象 / 调整尺寸 / 开关随机走动', {
