@@ -1,5 +1,5 @@
 const api = window.petAPI;
-const BUILTIN = ['cat', 'dog', 'slime', 'bunny', 'alien'];
+const BUILTIN = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien'];
 const stage = document.getElementById('stage');
 const fx = document.getElementById('fx');
 const statusEl = document.getElementById('status');
@@ -75,7 +75,10 @@ async function getBeadPattern() {
 }
 
 // ---------- 渲染 ----------
+let renderToken = 0;
+
 async function render() {
+  const my = ++renderToken;
   clearTimeout(phaseTimer);
   if (ironRaf) { cancelAnimationFrame(ironRaf); ironRaf = null; }
   stopIronSound();
@@ -83,7 +86,7 @@ async function render() {
 
   if (settings.pet === 'bead') {
     const p = await getBeadPattern();
-    if (!p) return;
+    if (!p || my !== renderToken) return;
     const progress = settings.beadProgress || 0;
     if (progress < p.total) {
       phase = 'assemble';
@@ -112,8 +115,9 @@ async function render() {
     img.alt = 'pet';
     pet.appendChild(img);
   } else {
-    const id = BUILTIN.includes(settings.pet) ? settings.pet : 'cat';
+    const id = BUILTIN.includes(settings.pet) ? settings.pet : 'robo';
     const svgText = await api.getPetSvg(id);
+    if (my !== renderToken) return; // 期间又触发了新渲染，丢弃本次
     pet.innerHTML = svgText || '';
   }
   stage.appendChild(pet);
@@ -475,7 +479,9 @@ function handleAgentEvent(p) {
   else if (p.type === 'status') applyStatus(p.state, p.text);
 }
 
-// 任务状态徽标：working ⚙️ / done ✅ / error ❌ / notice ❗
+// 任务状态徽标：working 工作中 / done 完成 / error 出错 / notice 提醒
+const STATUS_LABELS = { working: '工作中', done: '完成', error: '出错', notice: '提醒' };
+
 function applyStatus(state, text) {
   clearTimeout(statusTimer);
   statusEl.className = '';
@@ -483,10 +489,8 @@ function applyStatus(state, text) {
     statusEl.classList.add('hidden');
     return;
   }
-  const map = { working: ['⚙️', 'spin'], done: ['✅', 'pop'], error: ['❌', 'pop'], notice: ['❗', 'pop'] };
-  const [emoji, cls] = map[state] || ['', 'pop'];
-  statusEl.textContent = emoji;
-  if (cls) statusEl.classList.add(cls);
+  statusEl.classList.add(state, 'pop');
+  statusEl.querySelector('.label').textContent = STATUS_LABELS[state] || '';
   const pet = stage.querySelector('.pet');
   if (pet && phase === 'live') {
     if (state === 'done') playAnim(pet, 'happy', 900);

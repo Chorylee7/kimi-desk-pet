@@ -1,5 +1,6 @@
 const api = window.petAPI;
 const BUILTIN = [
+  { id: 'robo',  label: '机器人', src: '../pets/robo.svg' },
   { id: 'cat',   label: '小猫',   src: '../pets/cat.svg' },
   { id: 'dog',   label: '小狗',   src: '../pets/dog.svg' },
   { id: 'slime', label: '史莱姆', src: '../pets/slime.svg' },

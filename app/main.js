@@ -18,6 +18,7 @@ const PETS_DIR = path.join(__dirname, 'pets');
 const CUSTOM_DIR = path.join(app.getPath('userData'), 'custom');
 
 const BUILTIN_PETS = [
+  { id: 'robo',  label: '机器人', file: 'robo.svg' },
   { id: 'cat',   label: '小猫',   file: 'cat.svg' },
   { id: 'dog',   label: '小狗',   file: 'dog.svg' },
   { id: 'slime', label: '史莱姆', file: 'slime.svg' },
@@ -290,7 +291,7 @@ function registerIpc() {
 }
 
 // ---------- MCP / hooks 桥 ----------
-const BRIDGE_PETS = ['cat', 'dog', 'slime', 'bunny', 'alien', 'bead'];
+const BRIDGE_PETS = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien', 'bead'];
 
 // 聚焦 Kimi Code 窗口（点击宠物时用；macOS 走 AppleScript，Windows 走 PowerShell）
 function focusKimiCode() {

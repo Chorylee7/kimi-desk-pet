@@ -144,7 +144,7 @@ async function main() {
 
   const server = new McpServer({
     name: 'desk-pet',
-    version: '0.2.0',
+    version: '0.3.0',
   });
 
   server.tool('pet_status', '查看桌面宠物状态（存活、形象、尺寸、位置、是否随机走动）', {}, async () => {
@@ -187,7 +187,7 @@ async function main() {
   });
 
   server.tool('pet_set', '设置桌面宠物：切换形象 / 调整尺寸 / 开关随机走动', {
-    pet: z.enum(['cat', 'dog', 'slime', 'bunny', 'alien', 'bead', 'custom']).optional().describe('形象（custom 需已在设置里导入过图片）'),
+    pet: z.enum(['robo', 'cat', 'dog', 'slime', 'bunny', 'alien', 'bead', 'custom']).optional().describe('形象（custom 需已在设置里导入过图片）'),
     size: z.number().min(80).max(400).optional().describe('窗口边长 px（80–400）'),
     wander: z.boolean().optional().describe('是否随机走动'),
   }, async (patch) => {

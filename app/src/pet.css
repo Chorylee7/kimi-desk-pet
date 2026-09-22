@@ -22,25 +22,52 @@ html, body {
 
 #fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 
-/* ---------- 任务状态徽标（Kimi Code 状态外显） ---------- */
+/* ---------- 任务状态徽标（科技风 HUD 胶囊） ---------- */
 #status {
+  --sc: #54E0FF;
   position: absolute;
   top: 0;
-  right: 2%;
-  font-size: 24px;
-  line-height: 1;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 38, 0.78);
+  border: 1px solid rgba(120, 200, 255, 0.30);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.38), inset 0 0 14px rgba(84, 224, 255, 0.07);
+  font: 600 11px/1 system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #D9EFFF;
+  letter-spacing: 1px;
+  white-space: nowrap;
   pointer-events: none;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.28));
   transition: opacity 0.3s, transform 0.3s;
   z-index: 10;
 }
-#status.hidden { opacity: 0; transform: scale(0.4); }
-#status.spin { animation: statusSpin 1.6s linear infinite; }
-@keyframes statusSpin { to { transform: rotate(360deg); } }
-#status.pop { animation: statusPop 0.4s cubic-bezier(0.3, 1.5, 0.6, 1); }
+#status.hidden { opacity: 0; transform: translateY(-6px) scale(0.85); }
+#status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sc);
+  box-shadow: 0 0 8px var(--sc);
+  flex-shrink: 0;
+}
+#status.working { --sc: #54E0FF; }
+#status.done { --sc: #4ADE80; }
+#status.error { --sc: #FF5D6C; }
+#status.notice { --sc: #FFB84D; }
+#status.working .dot { animation: statusPulse 1.2s ease-in-out infinite; }
+@keyframes statusPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.5; }
+}
+#status.pop { animation: statusPop 0.35s cubic-bezier(0.3, 1.5, 0.6, 1); }
 @keyframes statusPop {
-  0% { transform: scale(0); }
-  100% { transform: scale(1); }
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .pet {
