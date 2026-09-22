@@ -153,7 +153,7 @@ async function main() {
 
   const server = new McpServer({
     name: 'desk-pet',
-    version: '0.4.0',
+    version: '0.4.1',
   });
 
   server.tool('pet_status', '查看桌面宠物状态（存活、形象、尺寸、位置、是否随机走动）', {}, async () => {
