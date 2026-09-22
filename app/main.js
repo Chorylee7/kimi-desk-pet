@@ -358,6 +358,7 @@ async function handleBridgeCommand(action, payload) {
         wander: !!settings.wander,
         visible: !!(petWin && !petWin.isDestroyed() && petWin.isVisible()),
         position: (petWin && !petWin.isDestroyed()) ? petWin.getPosition() : null,
+        task: currentStatus,
       };
     case 'say': {
       const text = String((payload && payload.text) || '').trim().slice(0, 60);

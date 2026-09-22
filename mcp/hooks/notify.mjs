@@ -40,13 +40,10 @@ function cooldownOk() {
   return true;
 }
 
-// 记录最近一次下发的状态，避免 PostToolUse 高频重复推送
-function currentStatus() {
-  try { return JSON.parse(fs.readFileSync(path.join(stateDir(), 'status-state.json'), 'utf8')).state || null; } catch { return null; }
-}
-
-function writeStatus(state) {
-  try { fs.writeFileSync(path.join(stateDir(), 'status-state.json'), JSON.stringify({ state, at: Date.now() })); } catch { /* ignore */ }
+// 任务状态以宠物进程为准：agent 手动调 pet_task 也会改它，这里只读不写
+async function currentStatus() {
+  const st = await send('status');
+  return (st && st.task) || null;
 }
 
 function electronBinary() {
@@ -85,13 +82,17 @@ async function ensurePet() {
 
 async function send(action, payload) {
   const state = readState();
-  if (!state || !(await ping(state))) return;
-  await fetch(`http://127.0.0.1:${state.port}/${action}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${state.token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload || {}),
-    signal: AbortSignal.timeout(3000),
-  }).catch(() => { /* ignore */ });
+  if (!state || !(await ping(state))) return null;
+  try {
+    const res = await fetch(`http://127.0.0.1:${state.port}/${action}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${state.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload || {}),
+      signal: AbortSignal.timeout(3000),
+    });
+    const data = await res.json().catch(() => ({}));
+    return data.result || null;
+  } catch { return null; }
 }
 
 function readStdin() {
@@ -127,15 +128,12 @@ async function main() {
   const status = STATUS_MAP[event];
   if (status) {
     await send('event', { state: status });
-    writeStatus(status);
-  } else if (event === 'PostToolUse' && currentStatus() === 'thinking') {
-    // 第一个工具调用落地：从“思考中”升级为“工作中”（状态文件去重，不重复推送）
+  } else if (event === 'PostToolUse' && (await currentStatus()) === 'thinking') {
+    // 第一个工具调用落地：从“思考中”升级为“工作中”
     await send('event', { state: 'working' });
-    writeStatus('working');
   } else if (event === 'Stop') {
     // 本轮正常结束：进入“待复核”，持续显示直到用户点击宠物或开启新一轮
     await send('event', { state: 'review' });
-    writeStatus('review');
   }
 
   if (event === 'StopFailure' || (event === 'PostToolUseFailure' && tool === 'Bash')) {
