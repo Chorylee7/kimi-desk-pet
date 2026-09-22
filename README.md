@@ -14,9 +14,9 @@
 - 🖱️ **经典桌宠体验**：悬浮置顶、拖拽、点击互动（跳跃/转圈/爱心粒子）、随机走动
 - ♻️ **常驻共享**：宠物是独立进程，CLI 会话结束后留在桌面；多个会话共享同一只
 
-## 安装
+## 快速上手
 
-需要 Node.js ≥ 18 和 npm（首次使用会自动下载 Electron，国内网络慢可设 `ELECTRON_MIRROR=https://mirrors.huaweicloud.com/electron/`）。
+**1. 安装插件**（需要 Node.js ≥ 18 和 npm）
 
 在 Kimi Code 里执行：
 
@@ -24,27 +24,85 @@
 /plugins install https://github.com/Chorylee7/kimi-desk-pet
 ```
 
-然后 `/reload` 或开新会话。也可以用本地路径 `/plugins install <本目录>` 进行开发调试。
+然后 `/reload` 或开新会话。
 
-首次调用宠物工具或新会话开始时，会自动安装依赖并启动宠物（可能需要几十秒）。托盘菜单可切换形象、打开设置、退出。
+**2. 等宠物出现**
 
-## 使用
+首次使用会自动下载 Electron 并启动宠物（几十秒，取决于网络；国内慢可设 `ELECTRON_MIRROR=https://mirrors.huaweicloud.com/electron/` 后重试）。新会话开始时宠物会跟你打招呼——看到它，就说明一切就绪。
 
-直接对 Kimi Code 说：
+**3. 直接用**
 
-- “让宠物说句加油”
-- “任务完成了，让猫庆祝一下”
-- “把宠物换成拼豆鸭 / 调大一点 / 关掉随机走动”
-- “宠物走到屏幕右上角”
+随便对 Kimi Code 说一句“让宠物打个招呼”，剩下的交给 agent。无需记任何命令。
 
-agent 可用工具：`pet_status` `pet_show` `pet_hide` `pet_say` `pet_mood` `pet_animate` `pet_move` `pet_set` `pet_quit`，详见 `skills/desk-pet/SKILL.md`。
+> 开发调试可以 `/plugins install <本地路径>`，但注意本地安装会复制到受管目录，改源码后需重装。
+
+## 使用指南
+
+直接用自然语言描述，agent 会自动选择合适的工具：
+
+| 你说什么 | 宠物会… |
+| --- | --- |
+| “让宠物说句加油” | 弹出气泡说话 |
+| “任务完成了，让它庆祝一下” | 开心动画 + 撒花 |
+| “把宠物换成小猫 / 拼豆鸭 / 大一点的” | 切换形象 / 调尺寸 |
+| “让宠物走到屏幕右上角 / 来我鼠标这边” | 平滑走到指定位置 |
+| “宠物现在什么状态？” | 汇报存活、形象、位置 |
+| “别让它乱走了 / 隐藏一下 / 退掉吧” | 关闭随机走动 / 隐藏 / 退出 |
+
+agent 侧有 11 个 MCP 工具可用：`pet_status` `pet_show` `pet_hide` `pet_say` `pet_mood` `pet_animate` `pet_move` `pet_set` `pet_task` `pet_focus` `pet_quit`，详见 `skills/desk-pet/SKILL.md`。
+
+**手动入口**：右键（macOS 点按菜单栏）托盘图标可切换形象、开关随机走动、打开设置、退出；单击宠物会把 Kimi Code 窗口带到前台。
+
+## 自定义形象
+
+**内置形象**（托盘菜单「选择形象」或设置窗里切换）：
+
+| 形象 | 特点 |
+| --- | --- |
+| 🤖 机器人（默认） | 科技感，青色发光目镜，任务状态动效最全 |
+| 🐱🐶🐰👽🟢 猫/狗/兔/外星人/史莱姆 | 经典卡通，点击有跳跃/转圈小动画 |
+| 🦆 拼豆鸭 | 小游戏：点几下拼豆 → 熨烫 → 撕纸，鸭子诞生 |
+| 🖼️ 自定义 | 用你自己的图片当宠物 |
+
+**导入自己的图**（两种方式）：
+
+1. 直接把图片文件**拖到宠物身上**——立刻生效；
+2. 打开**设置窗**（托盘菜单 → 设置…）→「＋ 导入自定义图片」。
+
+支持格式：**PNG / GIF（动图）/ JPG / WebP / SVG / BMP**，建议透明底、正方形构图，显示尺寸 80–400px 可调。
+
+## 常见问题
+
+**Q：安装后宠物没出现？**
+首次启动要下载 Electron（约 100MB），耐心等一会儿；任何一次工具调用或新会话都会触发启动。看日志：`$KIMI_CODE_HOME/desk-pet/mcp.log`。
+
+**Q：点击宠物没反应 / 弹权限框？**
+macOS 首次点击会请求「自动化」权限（系统设置 → 隐私与安全性 → 自动化 → 允许桌宠控制“System Events”）。允许后点击即可把 Kimi Code 带到前台。
+
+**Q：宠物被我不小心关了？**
+托盘图标还在就没事：托盘菜单 →（宠物会自动在下次会话/工具调用时重新拉起）。想彻底退出：托盘菜单 → 退出。
+
+**Q：多个 Kimi Code 会话会怎样？**
+它们共享同一只宠物。任务状态以“最近事件”为准；手动 `pet_say` 等操作各会话都能用。
+
+**Q：Windows 能用吗？**
+代码是跨平台的，但只在 macOS 上实测过。Windows 首次使用同样自动装 Electron；点击聚焦用 PowerShell 实现。
+
+**Q：状态徽标都代表什么？**
+
+| 徽标 | 含义 |
+| --- | --- |
+| 🔵 工作中 | Kimi Code 正在执行任务 |
+| 🟢 完成 | 本轮正常结束 |
+| 🔴 出错 | 本轮失败（宠物会安慰你） |
+| 🟠 提醒 | 后台任务完成，来看看结果 |
 
 ## 架构
 
 ```
 kimi.plugin.json        # 插件 manifest（skills / mcpServers / hooks）
 mcp/server.mjs          # stdio MCP server：发现/拉起宠物进程，转发指令
-mcp/hooks/notify.mjs    # 生命周期 hooks：任务状态徽标（⚙️✅❌❗）、会话打招呼、失败安慰
+mcp/hooks/notify.mjs    # 生命周期 hooks：任务状态徽标、会话打招呼、失败安慰
 app/                    # Electron 桌宠（透明置顶窗 + 气泡窗 + 设置窗）
   bridge.js             # 127.0.0.1 HTTP bridge（token 鉴权），状态写入 $KIMI_CODE_HOME/desk-pet/bridge.json
 skills/desk-pet/        # agent 使用指南
