@@ -121,6 +121,7 @@ async function render() {
     pet.innerHTML = svgText || '';
   }
   stage.appendChild(pet);
+  syncBusy();
 }
 
 function renderAssemble(p, progress) {
@@ -173,6 +174,7 @@ function renderLiveDuck(p) {
   });
   pet.appendChild(duck);
   stage.appendChild(pet);
+  syncBusy();
 }
 
 // ---------- 落豆 ----------
@@ -448,7 +450,7 @@ function react() {
   if (Math.random() < 0.75) api.showBubble(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
 }
 
-const ANIM_CLASSES = ['idle', 'walking', 'jump', 'spin', 'happy', 'shake', 'sad', 'angry', 'dizzy', 'sleepy', 'think', 'love'];
+const ANIM_CLASSES = ['idle', 'busy', 'walking', 'jump', 'spin', 'happy', 'shake', 'sad', 'angry', 'dizzy', 'sleepy', 'think', 'love'];
 
 function playAnim(pet, cls, ms) {
   pet.classList.remove(...ANIM_CLASSES);
@@ -456,7 +458,8 @@ function playAnim(pet, cls, ms) {
   pet.classList.add(cls);
   setTimeout(() => {
     pet.classList.remove(cls);
-    pet.classList.add('idle');
+    pet.classList.add(baseClass());
+    syncBusy();
   }, ms);
 }
 
@@ -479,27 +482,48 @@ function handleAgentEvent(p) {
   else if (p.type === 'status') applyStatus(p.state, p.text);
 }
 
-// 任务状态徽标：working 工作中 / done 完成 / error 出错 / notice 提醒
-const STATUS_LABELS = { working: '工作中', done: '完成', error: '出错', notice: '提醒' };
+// 任务状态徽标：thinking 思考中 / working 工作中 / review 待复核 / done 完成 / error 出错 / notice 提醒
+const STATUS_LABELS = { thinking: '思考中', working: '工作中', review: '待复核', done: '完成', error: '出错', notice: '提醒' };
+let busyOn = false; // thinking / working 期间宠物本体持续“干活”动画
+
+function baseClass() { return busyOn ? 'busy' : 'idle'; }
+
+// 让宠物本体进入/退出 busy 态（与一次性动画、走动互不冲突）
+function syncBusy() {
+  const pet = stage.querySelector('.pet');
+  if (!pet || phase !== 'live') return;
+  const oneShot = ['walking', 'jump', 'spin', 'happy', 'shake', 'sad', 'angry', 'dizzy', 'sleepy', 'think', 'love'];
+  if (oneShot.some((c) => pet.classList.contains(c))) return;
+  pet.classList.toggle('busy', busyOn);
+  pet.classList.toggle('idle', !busyOn);
+}
 
 function applyStatus(state, text) {
   clearTimeout(statusTimer);
   statusEl.className = '';
+  busyOn = state === 'thinking' || state === 'working';
   if (!state || state === 'idle') {
     statusEl.classList.add('hidden');
+    syncBusy();
     return;
   }
   statusEl.classList.add(state, 'pop');
   statusEl.querySelector('.label').textContent = STATUS_LABELS[state] || '';
   const pet = stage.querySelector('.pet');
   if (pet && phase === 'live') {
-    if (state === 'done') playAnim(pet, 'happy', 900);
-    else if (state === 'error') playAnim(pet, 'sad', 1300);
-    else if (state === 'notice') playAnim(pet, 'jump', 650);
+    if (state === 'done' || state === 'review') {
+      playAnim(pet, 'happy', 900);
+      if (state === 'review') spawnParticles(['🎉', '✨', '💖']);
+    } else if (state === 'error') {
+      playAnim(pet, 'sad', 1300);
+    } else if (state === 'notice') {
+      playAnim(pet, 'jump', 650);
+    }
   }
   if (text && (state === 'notice' || state === 'error')) {
     api.showBubble(String(text).slice(0, 60));
   }
+  syncBusy();
   const ttl = { done: 2500, error: 5000, notice: 6000 }[state];
   if (ttl) statusTimer = setTimeout(() => statusEl.classList.add('hidden'), ttl);
 }
@@ -566,7 +590,7 @@ async function moveTo(tx, ty) {
     const dur = Math.min(5200, Math.max(900, dist * 3.2));
     const pet = stage.querySelector('.pet');
     if (pet) {
-      pet.classList.remove('idle', 'walking');
+      pet.classList.remove('idle', 'busy', 'walking');
       pet.style.setProperty('--flip', tx >= sx ? 1 : -1);
       pet.classList.add('walking');
     }
@@ -583,7 +607,7 @@ async function moveTo(tx, ty) {
       }, 16);
       wanderTick = tick;
     });
-    if (my === walkToken && pet) { pet.classList.remove('walking'); pet.classList.add('idle'); }
+    if (my === walkToken && pet) { pet.classList.remove('walking'); pet.classList.add(baseClass()); syncBusy(); }
   } catch (e) { /* ignore */ }
   scheduleWander();
 }

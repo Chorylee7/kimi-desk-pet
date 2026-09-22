@@ -19,7 +19,7 @@ description: 控制桌面宠物（Desk Pet）。当用户想让桌宠说话、�
 | `pet_set` | 换形象（cat/dog/slime/bunny/alien/bead/custom）、尺寸 80–400、开关随机走动 |
 | `pet_show` / `pet_hide` | 显示 / 隐藏 |
 | `pet_quit` | 退出宠物进程 |
-| `pet_task` | 任务状态徽标：working ⚙️ / done ✅ / error ❌ / notice ❗ / idle |
+| `pet_task` | 任务状态徽标：thinking 思考中 / working 工作中 / done 完成 / review 待复核 / error 出错 / notice 提醒 / idle |
 | `pet_focus` | 把 Kimi Code 窗口带到前台（等同点击宠物） |
 
 首次调用工具时 MCP server 会自动安装依赖并启动宠物（可能需要几十秒，取决于 Electron 下载速度）。宠物常驻桌面，CLI 会话结束后不会退出。

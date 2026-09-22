@@ -40,6 +40,15 @@ function cooldownOk() {
   return true;
 }
 
+// 记录最近一次下发的状态，避免 PostToolUse 高频重复推送
+function currentStatus() {
+  try { return JSON.parse(fs.readFileSync(path.join(stateDir(), 'status-state.json'), 'utf8')).state || null; } catch { return null; }
+}
+
+function writeStatus(state) {
+  try { fs.writeFileSync(path.join(stateDir(), 'status-state.json'), JSON.stringify({ state, at: Date.now() })); } catch { /* ignore */ }
+}
+
 function electronBinary() {
   const nm = path.join(APP_DIR, 'node_modules', 'electron', 'dist');
   const candidates = {
@@ -109,15 +118,25 @@ async function main() {
     return;
   }
 
-  // 任务状态外显：Kimi Code 生命周期 → 宠物徽标
+  // 任务状态外显（对标 Codex 宠物）：思考中 → 工作中 → 待复核 / 出错
   const STATUS_MAP = {
-    TurnStarted: 'working',   // 一轮对话开始 → ⚙️
-    Stop: 'done',             // 本轮正常结束 → ✅
+    TurnStarted: 'thinking',  // 一轮开始，先思考
     StopFailure: 'error',     // 本轮失败 → ❌
-    Interrupt: 'idle',        // 用户打断 → 隐藏
+    Interrupt: 'idle',        // 用户打断 → 收起
   };
   const status = STATUS_MAP[event];
-  if (status) await send('event', { state: status });
+  if (status) {
+    await send('event', { state: status });
+    writeStatus(status);
+  } else if (event === 'PostToolUse' && currentStatus() === 'thinking') {
+    // 第一个工具调用落地：从“思考中”升级为“工作中”（状态文件去重，不重复推送）
+    await send('event', { state: 'working' });
+    writeStatus('working');
+  } else if (event === 'Stop') {
+    // 本轮正常结束：进入“待复核”，持续显示直到用户点击宠物或开启新一轮
+    await send('event', { state: 'review' });
+    writeStatus('review');
+  }
 
   if (event === 'StopFailure' || (event === 'PostToolUseFailure' && tool === 'Bash')) {
     if (cooldownOk()) await send('say', { text: pick(CHEER_UP), mood: 'sad' });

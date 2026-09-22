@@ -144,7 +144,7 @@ async function main() {
 
   const server = new McpServer({
     name: 'desk-pet',
-    version: '0.3.0',
+    version: '0.4.0',
   });
 
   server.tool('pet_status', '查看桌面宠物状态（存活、形象、尺寸、位置、是否随机走动）', {}, async () => {
@@ -201,7 +201,7 @@ async function main() {
   });
 
   server.tool('pet_task', '设置宠物任务状态徽标（Kimi Code 任务状态外显）', {
-    state: z.enum(['working', 'done', 'error', 'notice', 'idle']).describe('working ⚙️ / done ✅ / error ❌ / notice ❗ / idle 隐藏'),
+    state: z.enum(['thinking', 'working', 'done', 'review', 'error', 'notice', 'idle']).describe('thinking 思考中 / working 工作中 / done 完成一闪 / review 待复核(持续) / error 出错 / notice 提醒 / idle 隐藏'),
     text: z.string().max(60).optional().describe('随徽标显示的气泡文字（可选）'),
   }, async ({ state, text: t }) => {
     return text(await bridgeCall('event', { state, text: t }));

@@ -285,6 +285,11 @@ function registerIpc() {
   ipcMain.handle('pet-clicked', async () => {
     const action = settings.clickAction || 'focus';
     if (action === 'play') return { skipped: true };
+    // Codex 式“待复核”：点击查看结果后清除徽标
+    if (currentStatus === 'review') {
+      currentStatus = null;
+      sendAgentEvent({ type: 'status', state: 'idle' });
+    }
     return focusKimiCode();
   });
   ipcMain.handle('quit', () => app.quit());
@@ -323,6 +328,8 @@ function focusKimiCode() {
 function sendAgentEvent(payload) {
   if (petWin && !petWin.isDestroyed()) petWin.webContents.send('agent-event', payload);
 }
+
+let currentStatus = null; // 最近一次任务状态（review 点击后清除）
 
 async function handleBridgeCommand(action, payload) {
   switch (action) {
@@ -396,7 +403,8 @@ async function handleBridgeCommand(action, payload) {
       if (petWin && !petWin.isDestroyed()) petWin.hide();
       return {};
     case 'event':
-      sendAgentEvent({ type: 'status', state: String((payload && payload.state) || 'idle'), text: payload && payload.text });
+      currentStatus = String((payload && payload.state) || 'idle');
+      sendAgentEvent({ type: 'status', state: currentStatus, text: payload && payload.text });
       return {};
     case 'focus':
       return focusKimiCode();
