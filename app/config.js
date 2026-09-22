@@ -11,6 +11,7 @@ const DEFAULTS = {
   wanderIntervalMin: 8,    // 两次走动最小间隔（秒）
   wanderIntervalMax: 20,   // 两次走动最大间隔（秒）
   position: null,          // 上次窗口位置 [x, y]
+  clickAction: 'focus',    // 点击宠物: 'focus' 聚焦 Kimi Code | 'play' 互动 | 'both'
 };
 
 function settingsPath() {

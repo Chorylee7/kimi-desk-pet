@@ -1,7 +1,7 @@
 {
   "name": "desk-pet",
-  "version": "0.1.0",
-  "description": "桌面宠物：在桌面上养一只会互动的 AI 桌宠，agent 可以让它说话、做表情、走动、换形象，并会主动回应会话事件",
+  "version": "0.2.0",
+  "description": "桌面宠物：在桌面上养一只会互动的 AI 桌宠。它是 Kimi Code 任务状态的外显——工作时转齿轮、完成打勾、失败打叉；点击宠物即可聚焦回 Kimi Code 窗口",
   "author": "Chorylee7",
   "homepage": "https://github.com/Chorylee7/kimi-desk-pet",
   "license": "Apache-2.0",
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Desk Pet · 桌面宠物",
     "shortDescription": "在桌面上养一只会互动的 AI 桌宠",
-    "longDescription": "常驻桌面的 Electron 宠物：支持猫/狗/史莱姆/兔/外星人/拼豆鸭多种形象，可拖拽、随机走动、点击互动。Kimi Code agent 可以通过 MCP 工具让它说话、做表情、走到指定位置、切换形象；会话开始和命令失败时宠物会主动打招呼/安慰。多会话共享同一只宠物。",
+    "longDescription": "常驻桌面的 Electron 宠物：猫/狗/史莱姆/兔/外星人/拼豆鸭多种形象，可拖拽、随机走动、点击互动。\n\n任务状态外显：Kimi Code 开始干活时宠物头上转 ⚙️，本轮完成 ✅，失败 ❌ 并安慰你，后台任务完成会 ❗ 提醒你。\n\n点击宠物即可把 Kimi Code 窗口带到前台（可在设置里改为互动模式）。agent 也可以通过 MCP 工具让它说话、做表情、走到指定位置、切换形象。多会话共享同一只宠物。",
     "developerName": "Chorylee7",
     "websiteURL": "https://github.com/Chorylee7/kimi-desk-pet"
   },
@@ -27,8 +27,34 @@
       "timeout": 20
     },
     {
-      "event": "PostToolUse",
+      "event": "TurnStarted",
+      "command": "node ./mcp/hooks/notify.mjs",
+      "timeout": 10
+    },
+    {
+      "event": "Stop",
+      "command": "node ./mcp/hooks/notify.mjs",
+      "timeout": 10
+    },
+    {
+      "event": "StopFailure",
+      "command": "node ./mcp/hooks/notify.mjs",
+      "timeout": 10
+    },
+    {
+      "event": "Interrupt",
+      "command": "node ./mcp/hooks/notify.mjs",
+      "timeout": 10
+    },
+    {
+      "event": "PostToolUseFailure",
       "matcher": "Bash",
+      "command": "node ./mcp/hooks/notify.mjs",
+      "timeout": 10
+    },
+    {
+      "event": "Notification",
+      "matcher": "task\\.completed",
       "command": "node ./mcp/hooks/notify.mjs",
       "timeout": 10
     }

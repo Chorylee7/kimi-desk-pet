@@ -22,6 +22,27 @@ html, body {
 
 #fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 
+/* ---------- 任务状态徽标（Kimi Code 状态外显） ---------- */
+#status {
+  position: absolute;
+  top: 0;
+  right: 2%;
+  font-size: 24px;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.28));
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 10;
+}
+#status.hidden { opacity: 0; transform: scale(0.4); }
+#status.spin { animation: statusSpin 1.6s linear infinite; }
+@keyframes statusSpin { to { transform: rotate(360deg); } }
+#status.pop { animation: statusPop 0.4s cubic-bezier(0.3, 1.5, 0.6, 1); }
+@keyframes statusPop {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
 .pet {
   width: 86%;
   height: 86%;

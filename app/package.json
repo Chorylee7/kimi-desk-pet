@@ -1,6 +1,6 @@
 {
   "name": "desk-pet-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Kimi Code 桌面宠物（Electron 宿主进程）",
   "main": "main.js",
   "author": "Chorylee7",

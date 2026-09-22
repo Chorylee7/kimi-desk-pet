@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, nativeImage, screen } = require('electron');
+const { execFile } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
@@ -280,11 +281,43 @@ function registerIpc() {
   ipcMain.handle('importFile', (_e, srcPath) => importFile(srcPath));
   ipcMain.handle('switchPet', (_e, id) => switchPet(id));
   ipcMain.handle('toggleWander', (_e, on) => { settings.wander = !!on; save(); sendSettingsChanged(); });
+  ipcMain.handle('pet-clicked', async () => {
+    const action = settings.clickAction || 'focus';
+    if (action === 'play') return { skipped: true };
+    return focusKimiCode();
+  });
   ipcMain.handle('quit', () => app.quit());
 }
 
 // ---------- MCP / hooks 桥 ----------
 const BRIDGE_PETS = ['cat', 'dog', 'slime', 'bunny', 'alien', 'bead'];
+
+// 聚焦 Kimi Code 窗口（点击宠物时用；macOS 走 AppleScript，Windows 走 PowerShell）
+function focusKimiCode() {
+  return new Promise((resolve) => {
+    if (process.platform === 'darwin') {
+      const script = [
+        'tell application "System Events"',
+        'set matchList to name of every process whose background only is false and name contains "kimi"',
+        'end tell',
+        'if (count of matchList) is 0 then return "not-found"',
+        'tell application (item 1 of matchList) to activate',
+        'return "ok"',
+      ].join('\n');
+      execFile('osascript', ['-e', script], { timeout: 5000 }, (err, stdout) => {
+        if (err) return resolve({ focused: false, error: String(err) });
+        resolve({ focused: stdout.trim() === 'ok' });
+      });
+    } else if (process.platform === 'win32') {
+      const ps = "(New-Object -ComObject WScript.Shell).AppActivate((Get-Process | Where-Object { $_.MainWindowTitle -match 'kimi' } | Select-Object -First 1).Id)";
+      execFile('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps], { timeout: 5000 }, (err, stdout) => {
+        resolve({ focused: !err && String(stdout).trim() === 'True' });
+      });
+    } else {
+      resolve({ focused: false, error: 'unsupported platform' });
+    }
+  });
+}
 
 function sendAgentEvent(payload) {
   if (petWin && !petWin.isDestroyed()) petWin.webContents.send('agent-event', payload);
@@ -361,6 +394,11 @@ async function handleBridgeCommand(action, payload) {
     case 'hide':
       if (petWin && !petWin.isDestroyed()) petWin.hide();
       return {};
+    case 'event':
+      sendAgentEvent({ type: 'status', state: String((payload && payload.state) || 'idle'), text: payload && payload.text });
+      return {};
+    case 'focus':
+      return focusKimiCode();
     case 'quit':
       setTimeout(() => app.quit(), 50);
       return {};

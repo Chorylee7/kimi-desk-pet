@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('petAPI', {
   importFile: (srcPath) => ipcRenderer.invoke('importFile', srcPath),
   switchPet: (id) => ipcRenderer.invoke('switchPet', id),
   openSettings: () => ipcRenderer.invoke('openSettings'),
+  petClicked: () => ipcRenderer.invoke('pet-clicked'),
   quit: () => ipcRenderer.invoke('quit'),
   onSettingsChanged: (cb) => ipcRenderer.on('settings-changed', (_e, s) => cb(s)),
   onAgentEvent: (cb) => ipcRenderer.on('agent-event', (_e, p) => cb(p)),

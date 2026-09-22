@@ -6,8 +6,10 @@
 
 ## 功能
 
+- 📊 **任务状态外显**：Kimi Code 干活时宠物头顶转 ⚙️，本轮完成 ✅，失败 ❌ + 安慰，后台任务完成 ❗ 提醒，按 Esc 打断则收起
+- 🖱️ **点击聚焦**：单击宠物把 Kimi Code 窗口带到前台（对标 Codex 宠物；设置里可切回互动模式）
 - 🎭 **多种形象**：小猫 / 小狗 / 史莱姆 / 小兔 / 外星人 / 拼豆鸭（点几下拼豆 → 熨烫 → 撕纸诞生 🦆），支持导入自定义图片
-- 🗣️ **agent 驱动**：`pet_say` 说话、`pet_mood` 表情（happy/sad/angry/dizzy/sleepy/think/love）、`pet_animate` 动作、`pet_move` 走到屏幕任意位置、`pet_set` 换形象/调尺寸/开关随机走动
+- 🗣️ **agent 驱动**：`pet_say` 说话、`pet_mood` 表情（happy/sad/angry/dizzy/sleepy/think/love）、`pet_animate` 动作、`pet_move` 走到屏幕任意位置、`pet_task` 状态徽标、`pet_set` 换形象/调尺寸/开关随机走动
 - 👋 **主动互动**：会话开始打招呼；Bash 命令失败时安慰（带 20 秒冷却，不会刷屏）
 - 🖱️ **经典桌宠体验**：悬浮置顶、拖拽、点击互动（跳跃/转圈/爱心粒子）、随机走动
 - ♻️ **常驻共享**：宠物是独立进程，CLI 会话结束后留在桌面；多个会话共享同一只
@@ -42,7 +44,7 @@ agent 可用工具：`pet_status` `pet_show` `pet_hide` `pet_say` `pet_mood` `pe
 ```
 kimi.plugin.json        # 插件 manifest（skills / mcpServers / hooks）
 mcp/server.mjs          # stdio MCP server：发现/拉起宠物进程，转发指令
-mcp/hooks/notify.mjs    # 生命周期 hooks：会话开始打招呼、命令失败安慰
+mcp/hooks/notify.mjs    # 生命周期 hooks：任务状态徽标（⚙️✅❌❗）、会话打招呼、失败安慰
 app/                    # Electron 桌宠（透明置顶窗 + 气泡窗 + 设置窗）
   bridge.js             # 127.0.0.1 HTTP bridge（token 鉴权），状态写入 $KIMI_CODE_HOME/desk-pet/bridge.json
 skills/desk-pet/        # agent 使用指南

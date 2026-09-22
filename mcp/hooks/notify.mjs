@@ -98,14 +98,6 @@ function readStdin() {
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-function isBashFailure(data) {
-  const tr = data.tool_result || data.tool_response || data.result || {};
-  if (data.is_error === true || data.error) return true;
-  if (tr.is_error === true) return true;
-  const code = tr.exit_code ?? tr.exitCode ?? data.exit_code;
-  return code !== undefined && code !== null && Number(code) !== 0;
-}
-
 async function main() {
   const data = await readStdin();
   const event = data.hook_event_name || data.event || '';
@@ -117,13 +109,21 @@ async function main() {
     return;
   }
 
-  if (event === 'PostToolUse' && tool === 'Bash') {
-    if (!cooldownOk()) return;
-    if (isBashFailure(data)) {
-      await send('say', { text: pick(CHEER_UP), mood: 'sad' });
-    } else if (Math.random() < 0.05) {
-      await send('mood', { mood: 'happy' });
-    }
+  // 任务状态外显：Kimi Code 生命周期 → 宠物徽标
+  const STATUS_MAP = {
+    TurnStarted: 'working',   // 一轮对话开始 → ⚙️
+    Stop: 'done',             // 本轮正常结束 → ✅
+    StopFailure: 'error',     // 本轮失败 → ❌
+    Interrupt: 'idle',        // 用户打断 → 隐藏
+  };
+  const status = STATUS_MAP[event];
+  if (status) await send('event', { state: status });
+
+  if (event === 'StopFailure' || (event === 'PostToolUseFailure' && tool === 'Bash')) {
+    if (cooldownOk()) await send('say', { text: pick(CHEER_UP), mood: 'sad' });
+  } else if (event === 'Notification') {
+    await send('event', { state: 'notice', text: '后台任务完成啦 🎉' });
+    await send('mood', { mood: 'happy' });
   }
 }
 

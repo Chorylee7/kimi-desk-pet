@@ -60,12 +60,16 @@ function bind() {
 
   document.getElementById('wanderToggle').onchange = (e) =>
     api.saveSettings({ wander: e.target.checked });
+
+  document.getElementById('clickAction').onchange = (e) =>
+    api.saveSettings({ clickAction: e.target.value });
 }
 
 function renderControls() {
   document.getElementById('sizeRange').value = settings.size;
   document.getElementById('sizeVal').textContent = settings.size + ' px';
   document.getElementById('wanderToggle').checked = !!settings.wander;
+  document.getElementById('clickAction').value = settings.clickAction || 'focus';
 }
 
 init();

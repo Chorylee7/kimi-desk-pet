@@ -2,6 +2,8 @@ const api = window.petAPI;
 const BUILTIN = ['cat', 'dog', 'slime', 'bunny', 'alien'];
 const stage = document.getElementById('stage');
 const fx = document.getElementById('fx');
+const statusEl = document.getElementById('status');
+let statusTimer = null;
 
 const BOARD_W = 252;
 const BOARD_H = 288;
@@ -388,7 +390,7 @@ function bindDrag() {
     const moved = dragState.moved;
     dragState = null;
     stage.classList.remove('dragging');
-    if (!moved) react();
+    if (!moved) onPetClick();
   };
   stage.addEventListener('pointerup', end);
   stage.addEventListener('pointercancel', end);
@@ -419,6 +421,20 @@ function bindDrop() {
 }
 
 // ---------- 点击互动 ----------
+// 默认：聚焦 Kimi Code 窗口 + 轻微反馈；设置里可切回“互动”或“两者”
+function onPetClick() {
+  const action = settings.clickAction || 'focus';
+  if (action === 'play') { react(); return; }
+  const pet = stage.querySelector('.pet');
+  if (pet && phase === 'live') playAnim(pet, 'happy', 700);
+  spawnParticles(['✨', '💖']);
+  api.petClicked().then((r) => {
+    if (r && r.skipped) return;
+    if (r && r.focused === false) api.showBubble('没找到 Kimi Code 窗口 🤔');
+  }).catch(() => { /* ignore */ });
+  if (action === 'both') react();
+}
+
 function react() {
   const pet = stage.querySelector('.pet');
   if (!pet) return;
@@ -456,6 +472,32 @@ function handleAgentEvent(p) {
   if (p.type === 'mood') applyMood(p.mood);
   else if (p.type === 'animate') applyAnimate(p.anim);
   else if (p.type === 'walk') agentWalk(p.x, p.y);
+  else if (p.type === 'status') applyStatus(p.state, p.text);
+}
+
+// 任务状态徽标：working ⚙️ / done ✅ / error ❌ / notice ❗
+function applyStatus(state, text) {
+  clearTimeout(statusTimer);
+  statusEl.className = '';
+  if (!state || state === 'idle') {
+    statusEl.classList.add('hidden');
+    return;
+  }
+  const map = { working: ['⚙️', 'spin'], done: ['✅', 'pop'], error: ['❌', 'pop'], notice: ['❗', 'pop'] };
+  const [emoji, cls] = map[state] || ['', 'pop'];
+  statusEl.textContent = emoji;
+  if (cls) statusEl.classList.add(cls);
+  const pet = stage.querySelector('.pet');
+  if (pet && phase === 'live') {
+    if (state === 'done') playAnim(pet, 'happy', 900);
+    else if (state === 'error') playAnim(pet, 'sad', 1300);
+    else if (state === 'notice') playAnim(pet, 'jump', 650);
+  }
+  if (text && (state === 'notice' || state === 'error')) {
+    api.showBubble(String(text).slice(0, 60));
+  }
+  const ttl = { done: 2500, error: 5000, notice: 6000 }[state];
+  if (ttl) statusTimer = setTimeout(() => statusEl.classList.add('hidden'), ttl);
 }
 
 function applyMood(mood) {

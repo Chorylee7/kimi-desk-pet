@@ -63,6 +63,18 @@ h2 { font-size: 14px; margin-bottom: 12px; }
 input[type="range"] { flex: 1; accent-color: #ff7ab8; }
 .sizeval { font-size: 13px; color: #555d66; min-width: 54px; text-align: right; }
 
+.select {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d4d8de;
+  border-radius: 10px;
+  background: #fbfcfe;
+  color: #2c3138;
+  font-size: 13px;
+  outline: none;
+}
+.select:focus { border-color: #ff7ab8; }
+
 .switch-row { display: flex; align-items: center; justify-content: space-between; }
 .switch-row h2 { margin-bottom: 4px; }
 
