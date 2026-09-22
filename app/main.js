@@ -78,7 +78,13 @@ function createPetWindow() {
   petWin.loadFile(path.join(__dirname, 'src', 'pet.html'));
 
   if (settings.position) {
-    petWin.setPosition(settings.position[0], settings.position[1]);
+    // 上次的位置可能落在已拔掉的显示器上，而宠物是 focusable:false、拖不回来就真找不回来了
+    const [sx, sy] = settings.position;
+    const wa = screen.getDisplayNearestPoint({ x: sx, y: sy }).workArea;
+    petWin.setPosition(
+      Math.round(Math.min(Math.max(sx, wa.x), wa.x + wa.width - size)),
+      Math.round(Math.min(Math.max(sy, wa.y), wa.y + wa.height - size))
+    );
   } else {
     // 默认出现在主屏中央
     const { workArea } = screen.getPrimaryDisplay();
