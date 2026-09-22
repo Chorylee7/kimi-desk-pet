@@ -1,0 +1,36 @@
+{
+  "name": "desk-pet",
+  "version": "0.1.0",
+  "description": "桌面宠物：在桌面上养一只会互动的 AI 桌宠，agent 可以让它说话、做表情、走动、换形象，并会主动回应会话事件",
+  "author": "Chorylee7",
+  "homepage": "https://github.com/Chorylee7/kimi-desk-pet",
+  "license": "Apache-2.0",
+  "keywords": ["pet", "desktop-pet", "desk-pet", "桌宠", "桌面宠物", "electron"],
+  "interface": {
+    "displayName": "Desk Pet · 桌面宠物",
+    "shortDescription": "在桌面上养一只会互动的 AI 桌宠",
+    "longDescription": "常驻桌面的 Electron 宠物：支持猫/狗/史莱姆/兔/外星人/拼豆鸭多种形象，可拖拽、随机走动、点击互动。Kimi Code agent 可以通过 MCP 工具让它说话、做表情、走到指定位置、切换形象；会话开始和命令失败时宠物会主动打招呼/安慰。多会话共享同一只宠物。",
+    "developerName": "Chorylee7",
+    "websiteURL": "https://github.com/Chorylee7/kimi-desk-pet"
+  },
+  "skills": "./skills/",
+  "mcpServers": {
+    "desk-pet": {
+      "command": "node",
+      "args": ["./mcp/server.mjs"]
+    }
+  },
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "command": "node ./mcp/hooks/notify.mjs",
+      "timeout": 20
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Bash",
+      "command": "node ./mcp/hooks/notify.mjs",
+      "timeout": 10
+    }
+  ]
+}

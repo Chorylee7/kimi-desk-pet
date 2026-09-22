@@ -1,0 +1,12 @@
+{
+  "name": "desk-pet-mcp",
+  "version": "0.1.0",
+  "description": "Desk Pet MCP server（Kimi Code 桌面宠物控制端）",
+  "type": "module",
+  "private": true,
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "zod": "^3.25.76"
+  }
+}

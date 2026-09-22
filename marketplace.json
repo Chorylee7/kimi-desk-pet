@@ -1,0 +1,10 @@
+{
+  "version": "2",
+  "plugins": [
+    {
+      "id": "desk-pet",
+      "displayName": "Desk Pet · 桌面宠物",
+      "source": "https://github.com/Chorylee7/kimi-desk-pet"
+    }
+  ]
+}
