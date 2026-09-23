@@ -25,6 +25,10 @@ const BUILTIN_PETS = [
   { id: 'slime', label: '史莱姆', file: 'slime.svg' },
   { id: 'bunny', label: '小兔',   file: 'bunny.svg' },
   { id: 'alien', label: '外星人', file: 'alien.svg' },
+  { id: 'intj',  label: '夜幕军师 · INTJ', file: 'intj.svg' },
+  { id: 'infp',  label: '拾梦旅人 · INFP', file: 'infp.svg' },
+  { id: 'isfj',  label: '暖灯管家 · ISFJ', file: 'isfj.svg' },
+  { id: 'estp',  label: '火花玩家 · ESTP', file: 'estp.svg' },
 ];
 
 const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'];
@@ -293,6 +297,7 @@ function registerIpc() {
     if (petWin && !petWin.isDestroyed()) petWin.setPosition(Math.round(x), Math.round(y));
   });
   ipcMain.handle('getDisplays', () => screen.getAllDisplays().map(d => ({ ...d.workArea })));
+  ipcMain.handle('getCursorPosition', () => screen.getCursorScreenPoint());
   ipcMain.handle('getPetSvg', (_e, id) => {
     const p = BUILTIN_PETS.find(x => x.id === id);
     if (!p) return '';
@@ -330,7 +335,7 @@ function registerIpc() {
 }
 
 // ---------- MCP / hooks 桥 ----------
-const BRIDGE_PETS = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien', 'bead'];
+const BRIDGE_PETS = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien', 'bead', 'intj', 'infp', 'isfj', 'estp'];
 
 // 聚焦 Kimi Code 窗口（点击宠物时用；macOS 走 AppleScript，Windows 走 PowerShell）
 function focusKimiCode() {
@@ -338,7 +343,11 @@ function focusKimiCode() {
     if (process.platform === 'darwin') {
       const script = [
         'tell application "System Events"',
+        // 优先精确命中 Kimi Code Desktop，再退到模糊匹配（CLI 场景下可能找不到）
+        'set matchList to name of every process whose background only is false and name is "Kimi Code"',
+        'if (count of matchList) is 0 then',
         'set matchList to name of every process whose background only is false and name contains "kimi"',
+        'end if',
         'end tell',
         'if (count of matchList) is 0 then return "not-found"',
         'tell application (item 1 of matchList) to activate',

@@ -1,6 +1,6 @@
 {
   "name": "desk-pet",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "桌面宠物：在桌面上养一只会互动的 AI 桌宠。它是 Kimi Code 任务状态的外显——思考中浅蓝、工作中蓝光呼吸、本轮结束亮琥珀色「待复核」、出错亮红并安慰你；点击宠物即可聚焦回 Kimi Code 窗口",
   "author": "Chorylee7",
   "homepage": "https://github.com/Chorylee7/kimi-desk-pet",
@@ -16,51 +16,51 @@
   "skills": "./skills/",
   "mcpServers": {
     "desk-pet": {
-      "command": "node",
-      "args": ["./mcp/server.mjs"]
+      "command": "sh",
+      "args": ["./mcp/run-node.sh", "./mcp/server.mjs"]
     }
   },
   "hooks": [
     {
       "event": "SessionStart",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 20
     },
     {
       "event": "TurnStarted",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 10
     },
     {
       "event": "PostToolUse",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 10
     },
     {
       "event": "Stop",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 10
     },
     {
       "event": "StopFailure",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 10
     },
     {
       "event": "Interrupt",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 10
     },
     {
       "event": "PostToolUseFailure",
       "matcher": "Bash",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 10
     },
     {
       "event": "Notification",
       "matcher": "task\\.completed",
-      "command": "node ./mcp/hooks/notify.mjs",
+      "command": "sh ./mcp/run-node.sh ./mcp/hooks/notify.mjs",
       "timeout": 10
     }
   ]
