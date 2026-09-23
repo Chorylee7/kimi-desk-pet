@@ -3,7 +3,7 @@ const path = require('path');
 const { app } = require('electron');
 
 const DEFAULTS = {
-  pet: 'robo',             // 'robo' | 'cat' | 'dog' | 'slime' | 'bunny' | 'alien' | 'bead' | 'custom'
+  pet: 'robo',             // 'robo' | 'cat' | 'dog' | 'slime' | 'bunny' | 'alien' | 'bead' | 'intj' | 'infp' | 'isfj' | 'estp' | 'custom'
   customPet: null,         // 自定义图片在 userData/custom 下的绝对路径
   beadProgress: 0,         // 拼豆已放置的豆子数（拼满等于鸭子豆子总数）
   size: 160,               // 宠物窗口边长（px）

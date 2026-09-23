@@ -6,6 +6,10 @@ const BUILTIN = [
   { id: 'slime', label: '史莱姆', src: '../pets/slime.svg' },
   { id: 'bunny', label: '小兔',   src: '../pets/bunny.svg' },
   { id: 'alien', label: '外星人', src: '../pets/alien.svg' },
+  { id: 'intj',  label: '夜幕军师 · INTJ', src: '../pets/intj.svg' },
+  { id: 'infp',  label: '拾梦旅人 · INFP', src: '../pets/infp.svg' },
+  { id: 'isfj',  label: '暖灯管家 · ISFJ', src: '../pets/isfj.svg' },
+  { id: 'estp',  label: '火花玩家 · ESTP', src: '../pets/estp.svg' },
   { id: 'bead',  label: '拼豆鸭', src: '../preview/duck-preview.png' },
 ];
 

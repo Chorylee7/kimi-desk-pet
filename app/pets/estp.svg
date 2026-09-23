@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  <!-- 火花玩家 · ESTP:像素墨镜 + 闪电 + 咧嘴笑 -->
+  <!-- 闪电 -->
+  <g fill="#FFD60A">
+    <rect x="40" y="90" width="10" height="10"/>
+    <rect x="30" y="100" width="20" height="10"/>
+    <rect x="30" y="110" width="10" height="10"/>
+    <rect x="20" y="120" width="10" height="10"/>
+  </g>
+
+  <!-- 身体 -->
+  <rect x="70" y="60" width="60" height="10" fill="#FF6B4A"/>
+  <rect x="60" y="70" width="80" height="10" fill="#FF6B4A"/>
+  <rect x="50" y="80" width="100" height="80" fill="#FF6B4A"/>
+  <rect x="60" y="160" width="80" height="10" fill="#FF6B4A"/>
+  <rect x="70" y="170" width="60" height="10" fill="#FF6B4A"/>
+  <rect x="140" y="80" width="10" height="80" fill="#E04E2E"/>
+  <rect x="130" y="160" width="10" height="10" fill="#E04E2E"/>
+
+  <!-- 冲冠短发 -->
+  <rect x="60" y="50" width="80" height="10" fill="#2B2B33"/>
+  <rect x="70" y="40" width="10" height="10" fill="#2B2B33"/>
+  <rect x="90" y="40" width="10" height="10" fill="#2B2B33"/>
+  <rect x="110" y="40" width="10" height="10" fill="#2B2B33"/>
+
+  <!-- 像素墨镜(镜片蹭 .eye 眨眼 = 闪光) -->
+  <g class="eye eye-l">
+    <rect x="60" y="80" width="30" height="20" fill="#23232B"/>
+    <rect x="60" y="80" width="10" height="10" fill="#FFFFFF" opacity="0.85"/>
+  </g>
+  <g class="eye eye-r">
+    <rect x="110" y="80" width="30" height="20" fill="#23232B"/>
+    <rect x="110" y="80" width="10" height="10" fill="#FFFFFF" opacity="0.85"/>
+  </g>
+  <rect x="90" y="85" width="20" height="10" fill="#23232B"/>
+
+  <!-- 咧嘴笑 -->
+  <rect x="70" y="120" width="60" height="20" fill="#7A2015"/>
+  <rect x="70" y="120" width="60" height="10" fill="#FFFFFF"/>
+  <rect x="90" y="120" width="10" height="10" fill="#7A2015"/>
+  <rect x="110" y="120" width="10" height="10" fill="#7A2015"/>
+</svg>

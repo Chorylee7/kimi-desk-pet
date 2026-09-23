@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  <!-- 拾梦旅人 · INFP:怀抱弯月 + 头顶云朵 + 梦游闪星 -->
+  <!-- 头顶云朵(蹭 .antenna 摆动) -->
+  <g class="antenna">
+    <rect x="85" y="35" width="30" height="10" fill="#FFFFFF"/>
+    <rect x="70" y="45" width="60" height="10" fill="#FFFFFF"/>
+    <rect x="110" y="45" width="20" height="10" fill="#D5DCE8"/>
+  </g>
+
+  <!-- 梦游闪星 -->
+  <rect x="150" y="60" width="10" height="10" fill="#FFE9A8" opacity="0.9"/>
+  <rect x="40" y="110" width="10" height="10" fill="#FFE9A8" opacity="0.7"/>
+
+  <!-- 圆滚身体 -->
+  <rect x="70" y="70" width="60" height="10" fill="#FFDFC4"/>
+  <rect x="60" y="80" width="80" height="10" fill="#FFDFC4"/>
+  <rect x="50" y="90" width="100" height="70" fill="#FFDFC4"/>
+  <rect x="60" y="160" width="80" height="10" fill="#FFDFC4"/>
+  <rect x="70" y="170" width="60" height="10" fill="#FFDFC4"/>
+  <rect x="140" y="90" width="10" height="70" fill="#F2C09B"/>
+  <rect x="130" y="160" width="10" height="10" fill="#F2C09B"/>
+
+  <!-- 睡眼惺忪(蹭 .eye 眨眼) -->
+  <g class="eye eye-l" fill="#7A5C4E">
+    <rect x="60" y="100" width="10" height="10"/>
+    <rect x="70" y="110" width="10" height="10"/>
+    <rect x="80" y="100" width="10" height="10"/>
+  </g>
+  <g class="eye eye-r" fill="#7A5C4E">
+    <rect x="110" y="100" width="10" height="10"/>
+    <rect x="120" y="110" width="10" height="10"/>
+    <rect x="130" y="100" width="10" height="10"/>
+  </g>
+
+  <!-- 嘴与腮红 -->
+  <rect x="90" y="120" width="10" height="10" fill="#7A5C4E"/>
+  <rect x="50" y="120" width="20" height="10" fill="#FF9FB2" opacity="0.8"/>
+  <rect x="130" y="120" width="20" height="10" fill="#FF9FB2" opacity="0.8"/>
+
+  <!-- 怀抱的弯月(深金描形,身体色挖空成月牙) -->
+  <g>
+    <rect x="70" y="120" width="10" height="10" fill="#FFC94D"/>
+    <rect x="60" y="130" width="10" height="10" fill="#FFC94D"/>
+    <rect x="50" y="140" width="10" height="10" fill="#FFC94D"/>
+    <rect x="50" y="150" width="10" height="10" fill="#E8A83B"/>
+    <rect x="60" y="160" width="10" height="10" fill="#E8A83B"/>
+    <rect x="70" y="170" width="10" height="10" fill="#FFC94D"/>
+    <rect x="60" y="140" width="10" height="10" fill="#FFDFC4"/>
+    <rect x="60" y="150" width="10" height="10" fill="#FFDFC4"/>
+  </g>
+</svg>
