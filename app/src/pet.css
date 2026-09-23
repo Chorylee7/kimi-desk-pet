@@ -116,6 +116,7 @@ html, body {
 
 /* ---------- 宠物整体状态动画 ---------- */
 .pet.idle > * { animation: idleFloat 3.4s ease-in-out infinite; }
+.pet.hovered > * { animation: hoverFloat 1.6s ease-in-out infinite; }
 .pet.walking > * { animation: hop 0.34s ease-in-out infinite; }
 .pet.jump > * { animation: jump 0.65s cubic-bezier(0.3, 1.5, 0.6, 1); }
 .pet.spin > * { animation: spin 0.85s ease-in-out; }
@@ -127,6 +128,11 @@ html, body {
 .pet.sleepy > * { animation: sleepy 2.2s ease-in-out; }
 .pet.think > * { animation: think 1.8s ease-in-out; }
 .pet.love > * { animation: love 1.1s ease-in-out; }
+.pet.peek > * { animation: peek 1.1s ease-in-out; }
+.pet.stretch > * { animation: stretch 1.2s ease-in-out; }
+.pet.hop2 > * { animation: hop2 0.7s ease-in-out; }
+.pet.land > * { animation: land 0.5s cubic-bezier(0.3, 1.4, 0.6, 1); }
+.pet.napping > * { animation: napping 3.2s ease-in-out infinite; }
 
 @keyframes idleFloat {
   0%, 100% { transform: translateY(0); }
@@ -194,6 +200,50 @@ html, body {
   30% { transform: scale(1.12); }
   55% { transform: scale(0.94); }
   75% { transform: scale(1.08); }
+}
+
+/* ---------- 生动化：hover / 待机小动作 / 拖拽 / 打盹 ---------- */
+@keyframes hoverFloat {
+  0%, 100% { transform: translateY(0) scale(1.03); }
+  50% { transform: translateY(-7px) scale(1.03); }
+}
+@keyframes peek {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  30% { transform: rotate(-9deg) translateX(-3px); }
+  65% { transform: rotate(-9deg) translateX(-3px); }
+}
+@keyframes stretch {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(0.94, 1.1) translateY(-3px); }
+  70% { transform: scale(1.05, 0.95); }
+}
+@keyframes hop2 {
+  0%, 100% { transform: translateY(0); }
+  35% { transform: translateY(-12px); }
+  70% { transform: translateY(0) scale(1.04, 0.96); }
+}
+@keyframes land {
+  0% { transform: translateY(-6px) scale(1.05, 0.95); }
+  45% { transform: translateY(2px) scale(0.92, 1.1); }
+  75% { transform: translateY(-2px) scale(1.03, 0.97); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes napping {
+  0%, 100% { transform: translateY(2px) scale(1, 0.96); }
+  50% { transform: translateY(0) scale(1.01, 1); }
+}
+
+/* 拖拽：倾斜 + 轻压扁，覆盖一切状态动画 */
+.pet.dragging > * {
+  animation: none;
+  transform: rotate(var(--tilt, 0deg)) scale(1.06, 0.94);
+  transition: transform 0.08s ease-out;
+}
+
+/* 视线追踪：眼睛内层 .look 平移（与 .eye 的眨眼 scaleY 分层） */
+.pet .look {
+  transform: translate(var(--look-x, 0px), var(--look-y, 0px));
+  transition: transform 0.15s ease-out;
 }
 
 /* ---------- 忙碌态（thinking / working）：宠物本体持续“干活”动画 ---------- */

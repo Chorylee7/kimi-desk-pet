@@ -1,5 +1,5 @@
 const api = window.petAPI;
-const BUILTIN = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien'];
+const BUILTIN = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien', 'intj', 'infp', 'isfj', 'estp'];
 const stage = document.getElementById('stage');
 const fx = document.getElementById('fx');
 const statusEl = document.getElementById('status');
@@ -26,11 +26,36 @@ let hintShown = false;
 let audioCtx = null;
 let ironNoise = null;
 
-const PHRASES = [
-  '喵～ 陪我玩会儿嘛', '今天也要开开心心哦', '嘿嘿，被你发现啦',
-  '别点啦，好痒呀～', '~(￣▽￣)~*', '我喜欢你！', '咕噜咕噜…',
-  '摸头杀！', '一起去喝奶茶吧', '我一直在陪着你呢', '嘎嘎！我出生啦 🦆',
-];
+// 生动化状态
+let lookTimer = null;    // 光标轮询（视线追踪）
+let glanceTimer = null;  // 光标静止时的自由张望
+let idleActTimer = null; // 待机小动作调度
+let sleepTimer = null;   // 打盹检查
+let zzzTimer = null;     // 💤 粒子
+let lastActive = Date.now();
+let sleeping = false;
+let lastCursor = { x: 0, y: 0, t: 0 };
+let hoverHeartsAt = 0;
+
+const PHRASES = {
+  default: ['今天也要开开心心哦', '嘿嘿，被你发现啦', '别点啦，好痒呀～', '~(￣▽￣)~*', '我喜欢你！', '摸头杀！', '一起去喝奶茶吧', '我一直在陪着你呢'],
+  robo: ['哔哔——系统运转正常', '电量 100%，随时待命', '检测到摸头请求，已批准', '正在为你加油，进度 99%…', '本机今日心情：晴'],
+  cat: ['喵～ 陪我玩会儿嘛', '咕噜咕噜…', '喵？你在看我吗', '今天的小鱼干呢'],
+  dog: ['汪汪！出去玩吗', '摇摇尾巴，心情超好', '主人最棒了！', '汪！我盯着呢'],
+  slime: ['咕叽咕叽…', '软乎乎的一天', '啵。', '变形——失败，还是圆的'],
+  bunny: ['蹦蹦跳跳真可爱', '胡萝卜补给充足', '耳朵竖起来了，在听哦', '蹦～'],
+  alien: ['地球人，你好呀', '信号连接良好 👽', '这个星球的奶茶不错', '正在扫描你的桌面…'],
+  bead: ['嘎嘎！', '我出生啦 🦆', '拼豆手法不错嘛', '嘎？要不要再拼一只'],
+  intj: ['这个方案我三年前就想到了', '按我说的做，效率提升 300%', '别吵，在想下一盘大棋', '计划通。'],
+  infp: ['刚才那朵云好像一只猫…', '在梦里给你留了位置', '嘘——我在和月亮说话', '今天也是温柔的一天'],
+  isfj: ['水喝够了吗？', '累了就靠一会儿吧', '给你温了杯茶', '我一直在，别担心'],
+  estp: ['走！去搞点好玩的', '刺激的事情要发生了', '墨镜戴好，出发！', '赢的感觉，懂吗'],
+};
+
+function pickPhrase() {
+  const pool = PHRASES[settings.pet] || PHRASES.default;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 async function init() {
   settings = await api.getSettings();
@@ -41,6 +66,10 @@ async function init() {
   api.onSettingsChanged((s) => onSettingsChanged(s));
   api.onAgentEvent((p) => handleAgentEvent(p));
   scheduleWander();
+  startLookLoop();
+  scheduleGlance();
+  scheduleIdleAct();
+  scheduleSleepCheck();
 }
 
 async function onSettingsChanged(s) {
@@ -119,9 +148,21 @@ async function render() {
     const svgText = await api.getPetSvg(id);
     if (my !== renderToken) return; // 期间又触发了新渲染，丢弃本次
     pet.innerHTML = svgText || '';
+    wrapEyesForLook(pet);
   }
   stage.appendChild(pet);
   syncBusy();
+}
+
+// 把每个 .eye 的内容包进内层 .look：眨眼动画作用在 .eye（scaleY），
+// 视线位移作用在 .look（translate），两层互不干扰
+function wrapEyesForLook(pet) {
+  pet.querySelectorAll('.eye').forEach((g) => {
+    const look = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    look.setAttribute('class', 'look');
+    while (g.firstChild) look.appendChild(g.firstChild);
+    g.appendChild(look);
+  });
 }
 
 function renderAssemble(p, progress) {
@@ -363,15 +404,19 @@ function bindDrag() {
   stage.addEventListener('pointerdown', async (e) => {
     if (e.button !== 0) return;
     if (phase !== 'live') return; // 拼装/熨烫流程不拖窗口
+    touch();
     const pos = await api.getWindowPosition();
     dragState = {
       sx: e.screenX, sy: e.screenY,
       wx: pos[0], wy: pos[1],
       moved: false,
+      lastX: e.screenX,
       area: areaContaining(pos),
     };
     stage.setPointerCapture(e.pointerId);
     stage.classList.add('dragging');
+    const pet = stage.querySelector('.pet');
+    if (pet) pet.classList.add('dragging');
   });
 
   stage.addEventListener('pointermove', (e) => {
@@ -380,6 +425,11 @@ function bindDrag() {
     const dy = e.screenY - dragState.sy;
     if (Math.abs(dx) + Math.abs(dy) > 5) dragState.moved = true;
     if (!dragState.moved) return;
+    // 拖拽手感：按水平速度倾斜身体
+    const vx = e.screenX - dragState.lastX;
+    dragState.lastX = e.screenX;
+    const pet = stage.querySelector('.pet');
+    if (pet) pet.style.setProperty('--tilt', clamp(vx * 0.7, -14, 14) + 'deg');
     let x = dragState.wx + dx;
     let y = dragState.wy + dy;
     const a = dragState.area;
@@ -396,10 +446,36 @@ function bindDrag() {
     const moved = dragState.moved;
     dragState = null;
     stage.classList.remove('dragging');
+    const pet = stage.querySelector('.pet');
+    if (pet) {
+      pet.classList.remove('dragging');
+      pet.style.setProperty('--tilt', '0deg');
+      // 松手落地回弹，偶尔扬尘
+      if (moved && phase === 'live') {
+        playAnim(pet, 'land', 500);
+        if (Math.random() < 0.3) spawnParticles(['💨', '✨']);
+      }
+    }
     if (!moved) onPetClick();
   };
   stage.addEventListener('pointerup', end);
   stage.addEventListener('pointercancel', end);
+
+  // hover：加速浮动 + 冷却 8s 的小爱心
+  stage.addEventListener('pointerenter', () => {
+    touch();
+    const pet = stage.querySelector('.pet');
+    if (!pet || phase !== 'live') return;
+    pet.classList.add('hovered');
+    if (Date.now() - hoverHeartsAt > 8000) {
+      hoverHeartsAt = Date.now();
+      spawnParticles(['💖']);
+    }
+  });
+  stage.addEventListener('pointerleave', () => {
+    const pet = stage.querySelector('.pet');
+    if (pet) pet.classList.remove('hovered');
+  });
 
   stage.addEventListener('click', () => {
     if (phase === 'assemble') dropBeads();
@@ -433,6 +509,7 @@ function bindDrop() {
 // ---------- 点击互动 ----------
 // 默认：聚焦 Kimi Code 窗口 + 轻微反馈；设置里可切回“互动”或“两者”
 function onPetClick() {
+  touch();
   const action = settings.clickAction || 'focus';
   // 不管哪种点击行为都通知主进程：点击即“看过结果”，由它清掉「待复核」徽标
   api.petClicked().then((r) => {
@@ -452,10 +529,10 @@ function react() {
   const roll = Math.random();
   playAnim(pet, roll < 0.3 ? 'jump' : roll < 0.5 ? 'spin' : 'happy', roll < 0.3 ? 650 : 900);
   spawnParticles();
-  if (Math.random() < 0.75) api.showBubble(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
+  if (Math.random() < 0.75) api.showBubble(pickPhrase());
 }
 
-const ANIM_CLASSES = ['idle', 'busy', 'walking', 'jump', 'spin', 'happy', 'shake', 'sad', 'angry', 'dizzy', 'sleepy', 'think', 'love'];
+const ANIM_CLASSES = ['idle', 'busy', 'walking', 'jump', 'spin', 'happy', 'shake', 'sad', 'angry', 'dizzy', 'sleepy', 'think', 'love', 'peek', 'stretch', 'hop2', 'land', 'napping'];
 
 function playAnim(pet, cls, ms) {
   pet.classList.remove(...ANIM_CLASSES);
@@ -481,6 +558,7 @@ const MOODS = {
 // agent（MCP/hooks）驱动的事件
 function handleAgentEvent(p) {
   if (!p || typeof p !== 'object') return;
+  touch();
   if (p.type === 'mood') applyMood(p.mood);
   else if (p.type === 'animate') applyAnimate(p.anim);
   else if (p.type === 'walk') agentWalk(p.x, p.y);
@@ -496,7 +574,7 @@ function baseClass() { return busyOn ? 'busy' : 'idle'; }
 // 让宠物本体进入/退出 busy 态（与一次性动画、走动互不冲突）
 function syncBusy() {
   const pet = stage.querySelector('.pet');
-  if (!pet || phase !== 'live') return;
+  if (!pet || phase !== 'live' || sleeping) return;
   const oneShot = ['walking', 'jump', 'spin', 'happy', 'shake', 'sad', 'angry', 'dizzy', 'sleepy', 'think', 'love'];
   if (oneShot.some((c) => pet.classList.contains(c))) return;
   pet.classList.toggle('busy', busyOn);
@@ -563,10 +641,98 @@ function spawnParticles(emojis) {
   }
 }
 
+// ---------- 视线追踪 / 待机小动作 / 打盹 ----------
+function touch() {
+  lastActive = Date.now();
+  if (sleeping) wake();
+}
+
+// 视线跟随光标：光标 10 秒不动则交给「自由张望」
+function startLookLoop() {
+  clearInterval(lookTimer);
+  lookTimer = setInterval(async () => {
+    const pet = stage.querySelector('.pet');
+    if (!pet || phase !== 'live' || sleeping || dragState) return;
+    try {
+      const c = await api.getCursorPosition();
+      if (Math.hypot(c.x - lastCursor.x, c.y - lastCursor.y) > 4) {
+        lastCursor = { x: c.x, y: c.y, t: Date.now() };
+      }
+      if (Date.now() - lastCursor.t > 10000) return;
+      const pos = await api.getWindowPosition();
+      const s = settings.size || 160;
+      const dx = c.x - (pos[0] + s / 2), dy = c.y - (pos[1] + s / 2);
+      const len = Math.hypot(dx, dy) || 1;
+      pet.style.setProperty('--look-x', (dx / len * 3.5).toFixed(1) + 'px');
+      pet.style.setProperty('--look-y', (dy / len * 3.5).toFixed(1) + 'px');
+    } catch (e) { /* ignore */ }
+  }, 120);
+}
+
+// 光标长时间静止：宠物自顾自地张望
+function scheduleGlance() {
+  clearTimeout(glanceTimer);
+  glanceTimer = setTimeout(() => {
+    const pet = stage.querySelector('.pet');
+    if (pet && phase === 'live' && !sleeping && !dragState && Date.now() - lastCursor.t > 10000) {
+      const ang = Math.random() * Math.PI * 2;
+      pet.style.setProperty('--look-x', (Math.cos(ang) * 3.5).toFixed(1) + 'px');
+      pet.style.setProperty('--look-y', (Math.sin(ang) * 2).toFixed(1) + 'px');
+    }
+    scheduleGlance();
+  }, 4000 + Math.random() * 4000);
+}
+
+// 待机小动作：歪头 / 伸懒腰 / 原地小跳
+const IDLE_ACTS = ['peek', 'stretch', 'hop2'];
+function scheduleIdleAct() {
+  clearTimeout(idleActTimer);
+  idleActTimer = setTimeout(() => {
+    const pet = stage.querySelector('.pet');
+    if (pet && phase === 'live' && !busyOn && !sleeping && !dragState && pet.classList.contains('idle')) {
+      playAnim(pet, IDLE_ACTS[Math.floor(Math.random() * IDLE_ACTS.length)], 1100);
+    }
+    scheduleIdleAct();
+  }, 6000 + Math.random() * 8000);
+}
+
+// 5 分钟无互动 → 打盹；任何互动唤醒
+function scheduleSleepCheck() {
+  clearInterval(sleepTimer);
+  sleepTimer = setInterval(() => {
+    if (sleeping || phase !== 'live' || busyOn || dragState) return;
+    if (Date.now() - lastActive > 5 * 60 * 1000) doze();
+  }, 30000);
+}
+
+function doze() {
+  sleeping = true;
+  const pet = stage.querySelector('.pet');
+  if (pet) {
+    pet.classList.remove(...ANIM_CLASSES);
+    pet.classList.add('napping');
+  }
+  spawnParticles(['💤']);
+  clearInterval(zzzTimer);
+  zzzTimer = setInterval(() => { if (sleeping) spawnParticles(['💤']); }, 20000);
+}
+
+function wake() {
+  if (!sleeping) return;
+  sleeping = false;
+  clearInterval(zzzTimer);
+  const pet = stage.querySelector('.pet');
+  if (pet) {
+    pet.classList.remove('napping');
+    pet.classList.add(baseClass());
+    playAnim(pet, 'happy', 700);
+  }
+}
+
 // ---------- 随机走动 / agent 指定移动 ----------
 function scheduleWander() {
   clearTimeout(wanderTimer);
-  if (!settings.wander || phase !== 'live') return;
+  if (!settings.wander || phase !== 'live' || sleeping) return;
   const min = (settings.wanderIntervalMin || 8) * 1000;
   const max = (settings.wanderIntervalMax || 20) * 1000;
   wanderTimer = setTimeout(walk, min + Math.random() * (max - min));
@@ -618,16 +784,31 @@ async function moveTo(tx, ty) {
 }
 
 async function walk() {
-  if (!settings.wander || phase !== 'live') return;
+  if (!settings.wander || phase !== 'live' || sleeping) return;
   try {
     if (!displays.length) displays = await api.getDisplays();
     const pos = await api.getWindowPosition();
     const area = areaContaining(pos) || displays[0];
     if (!area) return scheduleWander();
     const s = settings.size || 160;
-    const tx = area.x + Math.random() * Math.max(1, area.width - s);
-    const ty = area.y + Math.random() * Math.max(1, area.height - s);
+    let tx, ty;
+    if (Math.random() < 0.7) {
+      // 散步：当前位置附近溜达
+      tx = pos[0] + (Math.random() * 2 - 1) * 350;
+      ty = pos[1] + (Math.random() * 2 - 1) * 200;
+    } else {
+      // 偶尔心血来潮走远一点
+      tx = area.x + Math.random() * Math.max(1, area.width - s);
+      ty = area.y + Math.random() * Math.max(1, area.height - s);
+    }
+    tx = clamp(tx, area.x, area.x + area.width - s);
+    ty = clamp(ty, area.y, area.y + area.height - s);
     await moveTo(tx, ty);
+    // 到达后偶尔张望一下四周
+    const pet = stage.querySelector('.pet');
+    if (pet && phase === 'live' && !busyOn && !sleeping && Math.random() < 0.3) {
+      playAnim(pet, 'peek', 1100);
+    }
   } catch (e) { /* ignore */ }
 }
 

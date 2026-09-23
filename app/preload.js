@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('petAPI', {
   getWindowPosition: () => ipcRenderer.invoke('getWindowPosition'),
   setWindowPosition: (x, y) => ipcRenderer.invoke('setWindowPosition', x, y),
   getDisplays: () => ipcRenderer.invoke('getDisplays'),
+  getCursorPosition: () => ipcRenderer.invoke('getCursorPosition'),
   getPetSvg: (id) => ipcRenderer.invoke('getPetSvg', id),
   getBeadPattern: () => ipcRenderer.invoke('getBeadPattern'),
   resizeWindow: (w, h) => ipcRenderer.invoke('resizeWindow', w, h),
