@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  <!-- 慢画旅人 · ISFP:鼠尾草绿 + 贝雷帽 + 手持调色盘 -->
+  <!-- 贝雷帽(蹭 .antenna 摆动) -->
+  <g class="antenna">
+    <rect x="65" y="54" width="65" height="16" fill="#C66B5A"/>
+    <rect x="95" y="46" width="10" height="8" fill="#A8553F"/>
+  </g>
+
+  <!-- 身体 -->
+  <rect x="70" y="70" width="60" height="10" fill="#B7C9A8"/>
+  <rect x="60" y="80" width="80" height="10" fill="#B7C9A8"/>
+  <rect x="50" y="90" width="100" height="70" fill="#B7C9A8"/>
+  <rect x="60" y="160" width="80" height="10" fill="#B7C9A8"/>
+  <rect x="70" y="170" width="60" height="10" fill="#B7C9A8"/>
+  <rect x="140" y="90" width="10" height="70" fill="#96AD86"/>
+  <rect x="130" y="160" width="10" height="10" fill="#96AD86"/>
+
+  <!-- 松弛半闭眼(蹭 .eye 眨眼) -->
+  <g class="eye eye-l"><rect x="60" y="96" width="25" height="8" fill="#3F4A3C"/></g>
+  <g class="eye eye-r"><rect x="115" y="96" width="25" height="8" fill="#3F4A3C"/></g>
+
+  <!-- 浅笑 -->
+  <rect x="86" y="126" width="28" height="7" fill="#3F4A3C"/>
+
+  <!-- 手持调色盘 -->
+  <rect x="12" y="118" width="34" height="24" fill="#D9B48F"/>
+  <rect x="18" y="123" width="7" height="7" fill="#E4572E"/>
+  <rect x="30" y="123" width="7" height="7" fill="#4A7FB5"/>
+  <rect x="24" y="133" width="7" height="7" fill="#F6C453"/>
+</svg>

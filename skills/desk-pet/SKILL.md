@@ -16,7 +16,7 @@ description: 控制桌面宠物（Desk Pet）。当用户想让桌宠说话、�
 | `pet_mood` | happy / sad / angry / dizzy / sleepy / think / love |
 | `pet_animate` | jump / spin / happy / shake |
 | `pet_move` | 平滑走到屏幕坐标（不传则到主屏幕中央） |
-| `pet_set` | 换形象（cat/dog/slime/bunny/alien/bead/intj/infp/isfj/estp/custom）、尺寸 80–400、开关随机走动 |
+| `pet_set` | 换形象（cat/dog/slime/bunny/alien/bead + MBTI 十六型 intj/intp/entj/entp/infp/infj/enfj/enfp/isfj/istj/estj/esfj/estp/isfp/istp/esfp + custom）、尺寸 80–400、开关随机走动 |
 | `pet_show` / `pet_hide` | 显示 / 隐藏（隐藏后用户可在托盘菜单勾回「显示宠物」） |
 | `pet_quit` | 退出宠物进程 |
 | `pet_task` | 任务状态徽标：thinking 思考中 / working 工作中 / done 完成一闪 / review 待复核(持续) / error 出错 / notice 提醒 / idle |

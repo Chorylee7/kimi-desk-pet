@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  <!-- 方格哨兵 · ISTJ:灰蓝制服 + 整齐分发 + 领带 + 头顶小钟 -->
+  <!-- 小钟(蹭 .antenna 摆动) -->
+  <g class="antenna">
+    <rect x="88" y="10" width="24" height="24" fill="#F8FAFC"/>
+    <rect x="88" y="10" width="24" height="4" fill="#94A3B8"/>
+    <rect x="98" y="15" width="4" height="9" fill="#334155"/>
+    <rect x="98" y="21" width="8" height="4" fill="#334155"/>
+  </g>
+
+  <!-- 身体(偏方正) -->
+  <rect x="70" y="70" width="60" height="10" fill="#94A3B8"/>
+  <rect x="55" y="80" width="90" height="80" fill="#94A3B8"/>
+  <rect x="65" y="160" width="70" height="15" fill="#94A3B8"/>
+  <rect x="135" y="80" width="10" height="80" fill="#64748B"/>
+  <rect x="125" y="160" width="10" height="15" fill="#64748B"/>
+
+  <!-- 整齐的分发 -->
+  <rect x="62" y="52" width="76" height="12" fill="#334155"/>
+  <rect x="62" y="52" width="30" height="5" fill="#475569"/>
+
+  <!-- 严肃平眼(蹭 .eye 眨眼) -->
+  <g class="eye eye-l"><rect x="62" y="96" width="24" height="10" fill="#0F172A"/></g>
+  <g class="eye eye-r"><rect x="114" y="96" width="24" height="10" fill="#0F172A"/></g>
+
+  <!-- 平直的嘴 -->
+  <rect x="88" y="128" width="24" height="6" fill="#334155"/>
+
+  <!-- 衬衫领与领带 -->
+  <rect x="70" y="142" width="60" height="10" fill="#F8FAFC"/>
+  <rect x="95" y="142" width="10" height="30" fill="#1E3A8A"/>
+  <rect x="92" y="140" width="16" height="8" fill="#1E3A8A"/>
+</svg>

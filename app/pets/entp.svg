@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  <!-- 点子王 · ENTP:紫绿撞色 + 头顶弹跳灯泡 + 挑眉歪嘴笑 -->
+  <!-- 灯泡(蹭 .antenna 摆动) -->
+  <g class="antenna">
+    <rect x="85" y="10" width="30" height="22" fill="#FDE047"/>
+    <rect x="92" y="32" width="16" height="10" fill="#9CA3AF"/>
+    <rect x="70" y="14" width="10" height="10" fill="#FDE047" opacity="0.7"/>
+    <rect x="120" y="14" width="10" height="10" fill="#FDE047" opacity="0.7"/>
+  </g>
+
+  <!-- 身体 -->
+  <rect x="70" y="70" width="60" height="10" fill="#A78BFA"/>
+  <rect x="60" y="80" width="80" height="10" fill="#A78BFA"/>
+  <rect x="50" y="90" width="100" height="70" fill="#A78BFA"/>
+  <rect x="60" y="160" width="80" height="10" fill="#A78BFA"/>
+  <rect x="70" y="170" width="60" height="10" fill="#A78BFA"/>
+  <rect x="140" y="90" width="10" height="70" fill="#8B6CD9"/>
+  <rect x="130" y="160" width="10" height="10" fill="#8B6CD9"/>
+
+  <!-- 绿色呆毛 -->
+  <rect x="70" y="60" width="10" height="10" fill="#34D399"/>
+  <rect x="95" y="55" width="10" height="15" fill="#34D399"/>
+  <rect x="120" y="60" width="10" height="10" fill="#34D399"/>
+
+  <!-- 左眼睁开右眼眨(蹭 .eye 眨眼) -->
+  <g class="eye eye-l">
+    <rect x="62" y="98" width="14" height="18" fill="#3B0764"/>
+    <rect x="62" y="98" width="6" height="6" fill="#FFFFFF"/>
+  </g>
+  <g class="eye eye-r">
+    <rect x="118" y="106" width="22" height="8" fill="#3B0764"/>
+  </g>
+  <!-- 挑起的眉毛 -->
+  <rect x="112" y="86" width="26" height="8" fill="#3B0764"/>
+
+  <!-- 歪嘴坏笑 -->
+  <rect x="85" y="135" width="40" height="10" fill="#3B0764"/>
+  <rect x="120" y="125" width="10" height="10" fill="#3B0764"/>
+</svg>

@@ -26,9 +26,21 @@ const BUILTIN_PETS = [
   { id: 'bunny', label: '小兔',   file: 'bunny.svg' },
   { id: 'alien', label: '外星人', file: 'alien.svg' },
   { id: 'intj',  label: '夜幕军师 · INTJ', file: 'intj.svg' },
+  { id: 'intp',  label: '奇思博士 · INTP', file: 'intp.svg' },
+  { id: 'entj',  label: '破阵统帅 · ENTJ', file: 'entj.svg' },
+  { id: 'entp',  label: '点子王 · ENTP', file: 'entp.svg' },
   { id: 'infp',  label: '拾梦旅人 · INFP', file: 'infp.svg' },
+  { id: 'infj',  label: '星灯隐士 · INFJ', file: 'infj.svg' },
+  { id: 'enfj',  label: '篝火团长 · ENFJ', file: 'enfj.svg' },
+  { id: 'enfp',  label: '彩虹弹弹 · ENFP', file: 'enfp.svg' },
   { id: 'isfj',  label: '暖灯管家 · ISFJ', file: 'isfj.svg' },
+  { id: 'istj',  label: '方格哨兵 · ISTJ', file: 'istj.svg' },
+  { id: 'estj',  label: '号令队长 · ESTJ', file: 'estj.svg' },
+  { id: 'esfj',  label: '甜甜班长 · ESFJ', file: 'esfj.svg' },
   { id: 'estp',  label: '火花玩家 · ESTP', file: 'estp.svg' },
+  { id: 'isfp',  label: '慢画旅人 · ISFP', file: 'isfp.svg' },
+  { id: 'istp',  label: '扳手游侠 · ISTP', file: 'istp.svg' },
+  { id: 'esfp',  label: '闪光爱豆 · ESFP', file: 'esfp.svg' },
 ];
 
 const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'];
@@ -335,7 +347,7 @@ function registerIpc() {
 }
 
 // ---------- MCP / hooks 桥 ----------
-const BRIDGE_PETS = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien', 'bead', 'intj', 'infp', 'isfj', 'estp'];
+const BRIDGE_PETS = ['robo', 'cat', 'dog', 'slime', 'bunny', 'alien', 'bead', 'intj', 'intp', 'entj', 'entp', 'infp', 'infj', 'enfj', 'enfp', 'isfj', 'istj', 'estj', 'esfj', 'estp', 'isfp', 'istp', 'esfp'];
 
 // 聚焦 Kimi Code 窗口（点击宠物时用；macOS 走 AppleScript，Windows 走 PowerShell）
 function focusKimiCode() {

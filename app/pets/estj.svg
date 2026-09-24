@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  <!-- 号令队长 · ESTJ:深蓝 + 军帽 + 红袖章 + 手持喇叭 -->
+  <!-- 军帽 -->
+  <rect x="65" y="45" width="70" height="12" fill="#1E3A8A"/>
+  <rect x="55" y="57" width="90" height="10" fill="#16294A"/>
+  <rect x="95" y="45" width="10" height="10" fill="#FFD93D"/>
+
+  <!-- 身体 -->
+  <rect x="70" y="70" width="60" height="10" fill="#3B5BDB"/>
+  <rect x="60" y="80" width="80" height="10" fill="#3B5BDB"/>
+  <rect x="50" y="90" width="100" height="70" fill="#3B5BDB"/>
+  <rect x="60" y="160" width="80" height="10" fill="#3B5BDB"/>
+  <rect x="70" y="170" width="60" height="10" fill="#3B5BDB"/>
+  <rect x="140" y="90" width="10" height="70" fill="#2B4AC7"/>
+  <rect x="130" y="160" width="10" height="10" fill="#2B4AC7"/>
+
+  <!-- 坚定眼(蹭 .eye 眨眼) -->
+  <g class="eye eye-l">
+    <rect x="60" y="95" width="25" height="10" fill="#0B1B3D"/>
+    <rect x="60" y="95" width="8" height="10" fill="#FFFFFF" opacity="0.85"/>
+  </g>
+  <g class="eye eye-r">
+    <rect x="115" y="95" width="25" height="10" fill="#0B1B3D"/>
+    <rect x="115" y="95" width="8" height="10" fill="#FFFFFF" opacity="0.85"/>
+  </g>
+
+  <!-- 号令的嘴 -->
+  <rect x="80" y="128" width="40" height="12" fill="#0B1B3D"/>
+
+  <!-- 红袖章 -->
+  <rect x="135" y="118" width="15" height="30" fill="#E03131"/>
+
+  <!-- 手持喇叭 -->
+  <rect x="18" y="108" width="22" height="10" fill="#CED4DA"/>
+  <rect x="12" y="118" width="32" height="10" fill="#CED4DA"/>
+  <rect x="18" y="128" width="22" height="10" fill="#CED4DA"/>
+  <rect x="12" y="118" width="10" height="10" fill="#E03131"/>
+  <rect x="38" y="118" width="10" height="22" fill="#9AA5B1"/>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" shape-rendering="crispEdges">
+  <!-- 破阵统帅 · ENTJ:深藏青 + 金色肩章 + 头顶红旗 -->
+  <!-- 红旗(蹭 .antenna 摆动) -->
+  <g class="antenna">
+    <rect x="95" y="15" width="10" height="35" fill="#8B5E3C"/>
+    <rect x="105" y="15" width="35" height="20" fill="#E4572E"/>
+    <rect x="105" y="35" width="20" height="10" fill="#E4572E"/>
+  </g>
+
+  <!-- 身体 -->
+  <rect x="70" y="70" width="60" height="10" fill="#2B3A67"/>
+  <rect x="60" y="80" width="80" height="10" fill="#2B3A67"/>
+  <rect x="50" y="90" width="100" height="70" fill="#2B3A67"/>
+  <rect x="60" y="160" width="80" height="10" fill="#2B3A67"/>
+  <rect x="70" y="170" width="60" height="10" fill="#2B3A67"/>
+  <rect x="140" y="90" width="10" height="70" fill="#1E2A4D"/>
+  <rect x="130" y="160" width="10" height="10" fill="#1E2A4D"/>
+
+  <!-- 金色肩章 -->
+  <rect x="40" y="90" width="10" height="20" fill="#E8B84B"/>
+  <rect x="150" y="90" width="10" height="20" fill="#E8B84B"/>
+
+  <!-- 锐利平眼(蹭 .eye 眨眼) -->
+  <g class="eye eye-l">
+    <rect x="60" y="100" width="30" height="10" fill="#141B2E"/>
+    <rect x="60" y="100" width="10" height="10" fill="#F3D97B"/>
+  </g>
+  <g class="eye eye-r">
+    <rect x="110" y="100" width="30" height="10" fill="#141B2E"/>
+    <rect x="110" y="100" width="10" height="10" fill="#F3D97B"/>
+  </g>
+
+  <!-- 自信抿嘴 -->
+  <rect x="85" y="130" width="30" height="8" fill="#141B2E"/>
+
+  <!-- 领口金线 -->
+  <rect x="70" y="142" width="60" height="8" fill="#E8B84B"/>
+</svg>
