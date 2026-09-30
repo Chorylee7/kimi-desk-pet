@@ -62,6 +62,8 @@ html, body {
 #status.done { --sc: #4ADE80; }
 #status.error { --sc: #FF5D6C; }
 #status.notice { --sc: #FFB84D; }
+#status.waiting { --sc: #C084FC; }
+#status.waiting .dot { animation: statusPulse 0.8s ease-in-out infinite; }
 #status.working .dot { animation: statusPulse 1.2s ease-in-out infinite; }
 @keyframes statusPulse {
   0%, 100% { transform: scale(1); opacity: 1; }

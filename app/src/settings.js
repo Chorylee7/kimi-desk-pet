@@ -29,18 +29,50 @@ let settings = null;
 let selectedId = null;
 let sizeTimer = null;
 
+// 分享卡台词：每只形象一句签名
+const SHARE_LINES = {
+  robo: '哔哔——系统运转正常', cat: '喵～ 陪我玩会儿嘛', dog: '汪汪！出去玩吗',
+  slime: '咕叽咕叽…', bunny: '蹦蹦跳跳真可爱', alien: '地球人，你好呀',
+  bead: '嘎嘎！我出生啦 🦆', custom: '独一无二的自定义形象',
+  intj: '这个方案我三年前就想到了', intp: '发呆中…不，是在思考', entj: '跟上我的节奏',
+  entp: '哎我有个绝妙的点子！', infp: '在梦里给你留了位置', infj: '我看得见你心里的光',
+  enfj: '你比自己想象的更厉害', enfp: '哇这个好玩那个也好玩！', isfj: '给你温了杯茶',
+  istj: '一切尽在掌握', estj: '听我口令——行动！', esfj: '给你留了小饼干哦',
+  estp: '墨镜戴好，出发！', isfp: '这束光的颜色真好看…', istp: '话不多，活不差',
+  esfp: '生活就是要闪闪发光',
+};
+
 async function init() {
   settings = await api.getSettings();
   selectedId = settings.pet;
   buildGallery();
   bind();
   renderControls();
+  renderShareCard();
   api.onSettingsChanged((s) => {
     settings = s;
     selectedId = s.pet;
     buildGallery();
     renderControls();
+    renderShareCard();
   });
+}
+
+// 分享卡：当前形象 + 昵称 + 签名台词
+function renderShareCard() {
+  const entry = BUILTIN.find(p => p.id === selectedId);
+  const img = document.getElementById('sharePetImg');
+  if (selectedId === 'custom' && settings.customPetUrl) {
+    img.src = settings.customPetUrl;
+    document.getElementById('shareName').textContent = '自定义形象';
+  } else if (entry) {
+    img.src = entry.src;
+    document.getElementById('shareName').textContent = entry.label;
+  } else {
+    img.src = '../pets/robo.svg';
+    document.getElementById('shareName').textContent = '机器人';
+  }
+  document.getElementById('shareLine').textContent = `「${SHARE_LINES[selectedId] || SHARE_LINES.robo}」`;
 }
 
 function buildGallery() {
@@ -80,6 +112,19 @@ function bind() {
 
   document.getElementById('clickAction').onchange = (e) =>
     api.saveSettings({ clickAction: e.target.value });
+
+  document.getElementById('shareBtn').onclick = async () => {
+    const card = document.getElementById('shareCard');
+    const r = card.getBoundingClientRect();
+    const pad = 6;
+    const rect = {
+      x: Math.max(0, Math.round(r.x - pad)),
+      y: Math.max(0, Math.round(r.y - pad)),
+      width: Math.round(r.width + pad * 2),
+      height: Math.round(r.height + pad * 2),
+    };
+    await api.exportShareCard(rect);
+  };
 }
 
 function renderControls() {

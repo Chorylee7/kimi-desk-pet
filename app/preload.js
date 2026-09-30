@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('petAPI', {
   importFile: (srcPath) => ipcRenderer.invoke('importFile', srcPath),
   getFilePath: (file) => webUtils.getPathForFile(file),
   switchPet: (id) => ipcRenderer.invoke('switchPet', id),
+  exportShareCard: (rect) => ipcRenderer.invoke('exportShareCard', rect),
   openSettings: () => ipcRenderer.invoke('openSettings'),
   petClicked: () => ipcRenderer.invoke('pet-clicked'),
   quit: () => ipcRenderer.invoke('quit'),

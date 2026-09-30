@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const APP_DIR = path.join(PLUGIN_ROOT, 'app');
 const COOLDOWN_MS = 20 * 1000;
+let lastAction = { name: '', at: 0 }; // 动作播报节流
 
 const GREETS = [
   '开工！我在桌上陪你 💪', '喵～又见面了', '新的会话，一起加油 ✨',
@@ -38,12 +39,6 @@ function cooldownOk() {
   } catch { /* ignore */ }
   fs.writeFileSync(path.join(stateDir(), 'hook-cooldown.json'), JSON.stringify({ lastAt: Date.now() }));
   return true;
-}
-
-// 任务状态以宠物进程为准：agent 手动调 pet_task 也会改它，这里只读不写
-async function currentStatus() {
-  const st = await send('status');
-  return (st && st.task) || null;
 }
 
 function electronBinary() {
@@ -123,14 +118,33 @@ async function main() {
   const STATUS_MAP = {
     TurnStarted: 'thinking',  // 一轮开始，先思考
     StopFailure: 'error',     // 本轮失败 → ❌
-    Interrupt: 'idle',        // 用户打断 → 收起
+    PermissionRequest: 'waiting', // 等用户点头 → 紫色「等你确认」
+    PermissionResult: 'working',  // 用户已确认 → 回到工作中
   };
   const status = STATUS_MAP[event];
   if (status) {
     await send('event', { state: status });
-  } else if (event === 'PostToolUse' && (await currentStatus()) === 'thinking') {
-    // 第一个工具调用落地：从“思考中”升级为“工作中”
-    await send('event', { state: 'working' });
+    // 新一轮开始，30% 概率带上会话名打招呼，增强“它知道我们在干嘛”的连接感
+    if (event === 'TurnStarted' && data.session_title && Math.random() < 0.3) {
+      await send('say', { text: `继续搞〈${String(data.session_title).slice(0, 16)}〉咯`, mood: 'think' });
+    }
+  } else if (event === 'Interrupt') {
+    // 被打断：先委屈一下再收起
+    await send('mood', { mood: 'dizzy' });
+    await send('event', { state: 'idle' });
+  } else if (event === 'PostToolUse') {
+    // 实时动作播报：告诉用户 agent 此刻在干嘛（同动作 5s 节流）
+    const TOOL_ACTION = {
+      Read: '在看代码', Edit: '在改文件', Write: '在写文件', Glob: '在翻文件', Grep: '在找线索',
+      Bash: '在跑命令', WebSearch: '在查资料', FetchURL: '在翻网页', Agent: '在派分身',
+      AgentSwarm: '在派分身军团', TodoList: '在列计划', Skill: '在翻技能书',
+    };
+    const action = TOOL_ACTION[tool] || '在干活';
+    const now = Date.now();
+    if (action !== lastAction.name || now - lastAction.at > 5000) {
+      lastAction = { name: action, at: now };
+      await send('event', { state: 'working', action });
+    }
   } else if (event === 'Stop') {
     // 本轮正常结束：进入“待复核”，持续显示直到用户点击宠物或开启新一轮
     await send('event', { state: 'review' });

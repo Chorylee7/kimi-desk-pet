@@ -574,12 +574,24 @@ function handleAgentEvent(p) {
   if (p.type === 'mood') applyMood(p.mood);
   else if (p.type === 'animate') applyAnimate(p.anim);
   else if (p.type === 'walk') agentWalk(p.x, p.y);
-  else if (p.type === 'status') applyStatus(p.state, p.text);
+  else if (p.type === 'status') applyStatus(p.state, p.text, p.action);
 }
 
-// 任务状态徽标：thinking 思考中 / working 工作中 / review 待复核 / done 完成 / error 出错 / notice 提醒
-const STATUS_LABELS = { thinking: '思考中', working: '工作中', review: '待复核', done: '完成', error: '出错', notice: '提醒' };
+// 任务状态徽标：thinking 思考中 / working 工作中 / waiting 等你确认 / review 待复核 / done 完成 / error 出错 / notice 提醒
+const STATUS_LABELS = { thinking: '思考中', working: '工作中', waiting: '等你确认', review: '待复核', done: '完成', error: '出错', notice: '提醒' };
 let busyOn = false; // thinking / working 期间宠物本体持续“干活”动画
+let busyFxTimer = null; // working 期间的“敲键盘”粒子
+
+function startBusyFx() {
+  if (busyFxTimer) return;
+  busyFxTimer = setInterval(() => {
+    if (busyOn && phase === 'live') spawnParticles(['>', '{', '}', '⌘', ';', '='], 2);
+  }, 1500);
+}
+function stopBusyFx() {
+  clearInterval(busyFxTimer);
+  busyFxTimer = null;
+}
 
 function baseClass() { return busyOn ? 'busy' : 'idle'; }
 
@@ -593,17 +605,20 @@ function syncBusy() {
   pet.classList.toggle('idle', !busyOn);
 }
 
-function applyStatus(state, text) {
+function applyStatus(state, text, action) {
   clearTimeout(statusTimer);
   statusEl.className = '';
   busyOn = state === 'thinking' || state === 'working';
+  if (busyOn) startBusyFx(); else stopBusyFx();
   if (!state || state === 'idle') {
     statusEl.classList.add('hidden');
     syncBusy();
     return;
   }
   statusEl.classList.add(state, 'pop');
-  statusEl.querySelector('.label').textContent = STATUS_LABELS[state] || '';
+  // working 时显示实时动作（「在改文件…」），否则用静态文案
+  const label = (state === 'working' && action) ? `⚙ ${action}…` : (STATUS_LABELS[state] || '');
+  statusEl.querySelector('.label').textContent = label;
   const pet = stage.querySelector('.pet');
   if (pet && phase === 'live') {
     if (state === 'done' || state === 'review') {
@@ -611,12 +626,19 @@ function applyStatus(state, text) {
       if (state === 'review') spawnParticles(['🎉', '✨', '💖']);
     } else if (state === 'error') {
       playAnim(pet, 'sad', 1300);
-    } else if (state === 'notice') {
+    } else if (state === 'notice' || state === 'waiting') {
       playAnim(pet, 'jump', 650);
     }
   }
   if (text && (state === 'notice' || state === 'error')) {
     api.showBubble(String(text).slice(0, 60));
+  }
+  if (state === 'waiting') {
+    api.showBubble('需要你点一下确认哦 👆');
+  }
+  // 待复核：常驻气泡，直到点击宠物清除（主进程在 pet-clicked 里收起）
+  if (state === 'review') {
+    api.showBubble({ text: '做完了，点我去看结果 👀', sticky: true });
   }
   syncBusy();
   const ttl = { done: 2500, error: 5000, notice: 6000 }[state];
@@ -639,9 +661,9 @@ function applyAnimate(anim) {
   spawnParticles();
 }
 
-function spawnParticles(emojis) {
+function spawnParticles(emojis, count = 6) {
   const pool = emojis && emojis.length ? emojis : ['💖', '✨', '💕', '⭐', '🎀', '💫'];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < count; i++) {
     const s = document.createElement('span');
     s.className = 'fx-item';
     s.textContent = pool[Math.floor(Math.random() * pool.length)];

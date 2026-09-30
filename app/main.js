@@ -2,6 +2,7 @@ const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, nativeImage, screen } =
 const { execFile } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { pathToFileURL } = require('url');
 const { loadSettings, saveSettings, DEFAULTS } = require('./config');
 const { startBridge, clearState } = require('./bridge');
@@ -153,7 +154,7 @@ function ensureBubble() {
 }
 
 let bubbleTimer = null;
-function showBubble(text) {
+function showBubble(text, sticky) {
   if (!petWin || petWin.isDestroyed()) return;
   const txt = String(text || '').trim().slice(0, 60);
   if (!txt) return;
@@ -174,7 +175,9 @@ function showBubble(text) {
   win.webContents.send('bubble-text', txt);
   win.showInactive();
   clearTimeout(bubbleTimer);
-  bubbleTimer = setTimeout(() => { if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.hide(); }, 3200);
+  if (!sticky) {
+    bubbleTimer = setTimeout(() => { if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.hide(); }, 3200);
+  }
 }
 
 // ---------- 设置窗口 ----------
@@ -326,18 +329,34 @@ function registerIpc() {
     petWin.setContentSize(Math.round(w), Math.round(h));
     petWin.setPosition(Math.round(cx - w / 2), Math.round(cy - h / 2));
   });
-  ipcMain.handle('showBubble', (_e, text) => showBubble(text));
+  ipcMain.handle('showBubble', (_e, text) => {
+    // 兼容字符串与 { text, sticky } 两种载荷
+    if (text && typeof text === 'object') showBubble(text.text, !!text.sticky);
+    else showBubble(text);
+  });
   ipcMain.handle('hideBubble', () => { if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.hide(); });
   ipcMain.handle('openSettings', () => openSettings());
   ipcMain.handle('importImage', () => importImage());
   ipcMain.handle('importFile', (_e, srcPath) => importFile(srcPath));
   ipcMain.handle('switchPet', (_e, id) => switchPet(id));
+  ipcMain.handle('exportShareCard', async (_e, rect) => {
+    if (!settingsWin || settingsWin.isDestroyed()) throw new Error('设置窗未打开');
+    const r = rect && typeof rect === 'object' ? rect : null;
+    const img = r
+      ? await settingsWin.webContents.capturePage({ x: r.x | 0, y: r.y | 0, width: r.width | 0, height: r.height | 0 })
+      : await settingsWin.webContents.capturePage();
+    const file = path.join(os.homedir(), 'Desktop', `desk-pet-card-${settings.pet}-${Date.now()}.png`);
+    fs.writeFileSync(file, img.toPNG());
+    showBubble('分享卡已存到桌面 📸');
+    return { file };
+  });
   ipcMain.handle('toggleWander', (_e, on) => { settings.wander = !!on; save(); sendSettingsChanged(); });
   ipcMain.handle('pet-clicked', async () => {
     // Codex 式“待复核”：点击即“看过结果”，先清徽标，与点击行为无关
     if (currentStatus === 'review') {
       currentStatus = null;
       sendAgentEvent({ type: 'status', state: 'idle' });
+      if (bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.hide(); // 收起常驻复核气泡
     }
     const action = settings.clickAction || 'focus';
     if (action === 'play') return { skipped: true };
@@ -458,10 +477,13 @@ async function handleBridgeCommand(action, payload) {
     case 'hide':
       if (petWin && !petWin.isDestroyed()) petWin.hide();
       return {};
-    case 'event':
+    case 'event': {
       currentStatus = String((payload && payload.state) || 'idle');
-      sendAgentEvent({ type: 'status', state: currentStatus, text: payload && payload.text });
+      // 新一轮开始/收起时，顺带清掉常驻复核气泡
+      if ((currentStatus === 'thinking' || currentStatus === 'idle') && bubbleWin && !bubbleWin.isDestroyed()) bubbleWin.hide();
+      sendAgentEvent({ type: 'status', state: currentStatus, text: payload && payload.text, action: payload && payload.action });
       return {};
+    }
     case 'focus':
       return focusKimiCode();
     case 'quit':
